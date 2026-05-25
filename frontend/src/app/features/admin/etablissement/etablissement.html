@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container admin-page">
   <div class="header">
     <button class="btn-back" (click)="retour()">← Retour</button>
     <h1>Gestion de l'Établissement</h1>
@@ -7,47 +7,84 @@
   <div class="message" *ngIf="message">{{ message }}</div>
 
   <div class="form-card">
-    <h2>Informations générales</h2>
-    
-    <label>Nom de la clinique</label>
-    <input type="text" [(ngModel)]="clinique.nom">
-
-    <label>Adresse</label>
-    <textarea [(ngModel)]="clinique.adresse" rows="2"></textarea>
-
-    <div class="row">
-      <div class="col">
-        <label>Téléphone</label>
-        <input type="text" [(ngModel)]="clinique.telephone">
+    <h2>Informations Générales</h2>
+    <div class="grid-2">
+      <div>
+        <label>Nom de la clinique*</label>
+        <input class="admin-input" type="text" [(ngModel)]="clinique.nom">
       </div>
-      <div class="col">
-        <label>Email</label>
-        <input type="email" [(ngModel)]="clinique.email">
+      <div>
+        <label>Adresse*</label>
+        <input class="admin-input" type="text" [(ngModel)]="clinique.adresse">
+      </div>
+      <div>
+        <label>Ville*</label>
+        <input class="admin-input" type="text" [(ngModel)]="clinique.ville">
+      </div>
+      <div>
+        <label>Code postal*</label>
+        <input class="admin-input" type="text" [(ngModel)]="clinique.codePostal">
+      </div>
+      <div>
+        <label>Téléphone*</label>
+        <input class="admin-input" type="text" [(ngModel)]="clinique.telephone">
+      </div>
+      <div>
+        <label>Email de contact*</label>
+        <input class="admin-input" type="email" [(ngModel)]="clinique.email">
+      </div>
+      <div class="full-width">
+        <label>Site web</label>
+        <input class="admin-input" type="text" [(ngModel)]="clinique.siteWeb">
       </div>
     </div>
-
-    <label>Horaires d'ouverture</label>
-    <input type="text" [(ngModel)]="clinique.horaires">
-
-    <label>Présentation</label>
-    <textarea [(ngModel)]="clinique.presentation" rows="3"></textarea>
-
-    <button class="btn-save" (click)="sauvegarder()">Sauvegarder</button>
   </div>
 
   <div class="form-card">
-    <h2>Spécialités proposées</h2>
-    
+    <h2>Spécialités Proposées</h2>
     <div class="specialites-list">
       <span class="tag" *ngFor="let spec of specialites; let i = index">
         {{ spec }}
-        <button class="remove" (click)="supprimerSpecialite(i)">✖</button>
+        <button class="remove" (click)="supprimerSpecialite(i)">×</button>
       </span>
+      <button class="tag add-chip" type="button">+ Ajouter</button>
     </div>
-
     <div class="add-specialite">
-      <input type="text" placeholder="Nouvelle spécialité" [(ngModel)]="nouvelleSpecialite">
+      <input class="admin-input" type="text" placeholder="Nouvelle spécialité" [(ngModel)]="nouvelleSpecialite">
       <button class="btn-add" (click)="ajouterSpecialite()">Ajouter</button>
     </div>
   </div>
+
+  <div class="form-card">
+    <h2>Horaires d'Ouverture</h2>
+    <div class="hours-table">
+      <div class="hours-row hours-head">
+        <span>Jour</span><span>Ouvert</span><span>Début</span><span>Fin</span>
+      </div>
+      <div class="hours-row" *ngFor="let row of horaires">
+        <span>{{ row.jour }}</span>
+        <label class="switch"><input type="checkbox" [(ngModel)]="row.ouvert"><span></span></label>
+        <input class="admin-input time-field" type="time" [(ngModel)]="row.debut">
+        <input class="admin-input time-field" type="time" [(ngModel)]="row.fin">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <h2>Médias</h2>
+    <div class="grid-2">
+      <div>
+        <label>Logo upload</label>
+        <input class="admin-input" type="file" accept="image/*" (change)="onLogoUpload($event)">
+        <img *ngIf="logoPreview" class="preview" [src]="logoPreview" alt="Logo preview">
+      </div>
+      <div>
+        <label>Photo de couverture</label>
+        <input class="admin-input" type="file" accept="image/*" (change)="onCoverUpload($event)">
+        <img *ngIf="coverPreview" class="preview cover" [src]="coverPreview" alt="Cover preview">
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-save" (click)="sauvegarder()">Enregistrer</button>
 </div>

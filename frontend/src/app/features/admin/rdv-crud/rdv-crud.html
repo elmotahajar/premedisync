@@ -1,0 +1,154 @@
+<div class="admin-page appointments-page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Administration</p>
+      <h1>Rendez-vous</h1>
+      <p class="subtext">Filtrer, créer, modifier et supprimer les rendez-vous.</p>
+    </div>
+    <button class="primary-btn" (click)="openCreate()">+ Ajouter un rendez-vous</button>
+  </div>
+
+  @if (toast()) {
+    <div class="toast">{{ toast() }}</div>
+  }
+
+  <div class="filters admin-surface">
+    <input class="admin-input" type="search" placeholder="Patient, médecin ou motif" [value]="search()" (input)="search.set(($any($event.target)).value)">
+    <select class="admin-select" [value]="doctorFilter()" (change)="doctorFilter.set(($any($event.target)).value)">
+      <option value="">Tous les médecins</option>
+      @for (doctor of doctors; track doctor) {
+        <option [value]="doctor">{{ doctor }}</option>
+      }
+    </select>
+    <input class="admin-input" type="date" [value]="dateStart()" (change)="dateStart.set(($any($event.target)).value)">
+    <input class="admin-input" type="date" [value]="dateEnd()" (change)="dateEnd.set(($any($event.target)).value)">
+    <select class="admin-select" [value]="statusFilter()" (change)="statusFilter.set(($any($event.target)).value)">
+      <option value="tous">Tous les statuts</option>
+      <option value="confirmé">Confirmé</option>
+      <option value="en attente">En attente</option>
+      <option value="annulé">Annulé</option>
+    </select>
+  </div>
+
+  <div class="table-wrap admin-surface">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Patient</th>
+          <th>Médecin</th>
+          <th>Date</th>
+          <th>Heure</th>
+          <th>Motif</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (appointment of paginatedAppointments(); track appointment.id) {
+          <tr>
+            <td>{{ appointment.patientName }}</td>
+            <td>{{ appointment.doctorName }}</td>
+            <td>{{ appointment.date }}</td>
+            <td>{{ appointment.timeSlot }}</td>
+            <td>{{ appointment.motif }}</td>
+            <td><span class="admin-badge" [class.info]="appointment.status === 'confirmé'" [class.warning]="appointment.status === 'en attente'" [class.danger]="appointment.status === 'annulé'">{{ appointment.status }}</span></td>
+            <td>
+              <div class="actions">
+                <button class="icon-action view" type="button" (click)="openView(appointment)">👁️</button>
+                <button class="icon-action edit" type="button" (click)="openEdit(appointment)">✏️</button>
+                <button class="icon-action delete" type="button" (click)="deleteAppointment(appointment)">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        }
+        @if (!paginatedAppointments().length) {
+          <tr><td colspan="7"><div class="admin-empty">Aucun rendez-vous trouvé</div></td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button class="secondary-btn" (click)="prevPage()" [disabled]="page() === 1">Précédent</button>
+    <span>Page {{ page() }} / {{ totalPages() }}</span>
+    <button class="secondary-btn" (click)="nextPage()" [disabled]="page() === totalPages()">Suivant</button>
+  </div>
+
+  @if (showModal()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-panel" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>{{ editId ? 'Modifier rendez-vous' : 'Ajouter rendez-vous' }}</h2>
+          <button class="icon-action" type="button" (click)="closeModal()">✕</button>
+        </div>
+        <form [formGroup]="form" class="modal-form" (ngSubmit)="save()">
+          <div class="grid-2">
+            <div>
+              <label>Patient *</label>
+              <select class="admin-select" formControlName="patientId">
+                <option value="">Rechercher un patient</option>
+                @if (patients.length) {
+                  @for (patient of patients; track patient.id) {
+                    <option [value]="patient.id">{{ patient.firstName }} {{ patient.lastName }}</option>
+                  }
+                } @else {
+                  <option value="">Aucun patient trouvé</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label>Médecin *</label>
+              <select class="admin-select" formControlName="doctorId">
+                <option value="">Rechercher un médecin</option>
+                @if (doctors.length) {
+                  @for (doctor of doctors; track doctor.id) {
+                    <option [value]="doctor.id">Dr. {{ doctor.firstName }} {{ doctor.lastName }} — {{ doctor.specialty }}</option>
+                  }
+                } @else {
+                  <option value="">Aucun médecin trouvé</option>
+                }
+              </select>
+            </div>
+            <div>
+              <label>Date *</label>
+              <input class="admin-input" type="date" formControlName="date">
+            </div>
+            <div>
+              <label>Heure *</label>
+              <select class="admin-select" formControlName="timeSlot">
+                <option value="">Sélectionner un créneau</option>
+                @for (slot of slots; track slot) {
+                  <option [value]="slot">{{ slot }}</option>
+                }
+              </select>
+            </div>
+            <div class="full-width">
+              <label>Motif *</label>
+              <input class="admin-input" formControlName="motif">
+            </div>
+            <div>
+              <label>Durée</label>
+              <select class="admin-select" formControlName="duration">
+                <option [value]="15">15 min</option>
+                <option [value]="30">30 min</option>
+                <option [value]="60">60 min</option>
+              </select>
+            </div>
+            <div>
+              <label>Statut *</label>
+              <select class="admin-select" formControlName="status">
+                <option value="confirmé">Confirmé</option>
+                <option value="en attente">En attente</option>
+                <option value="annulé">Annulé</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="secondary-btn" (click)="closeModal()">Fermer</button>
+            <button type="submit" class="primary-btn" [disabled]="loading()">{{ loading() ? 'Enregistrement...' : 'Enregistrer' }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

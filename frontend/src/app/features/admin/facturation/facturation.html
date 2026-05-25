@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container admin-page">
   <div class="header">
     <button class="btn-back" (click)="retour()">← Retour</button>
     <h1>Facturation</h1>
@@ -10,19 +10,19 @@
   <div class="stats">
     <div class="stat-card">
       <h3>Total général</h3>
-      <p class="montant">{{ totalGeneral }} €</p>
+      <p class="montant">{{ summary.totalRevenue || totalGeneral }} €</p>
     </div>
     <div class="stat-card payee">
       <h3>Payé</h3>
-      <p class="montant">{{ totalPaye }} €</p>
+      <p class="montant">{{ summary.paidCount }}</p>
     </div>
     <div class="stat-card impayee">
       <h3>Impayé</h3>
-      <p class="montant">{{ totalImpaye }} €</p>
+      <p class="montant">{{ summary.unpaidAmount || totalImpaye }} €</p>
     </div>
     <div class="stat-card attente">
       <h3>En attente</h3>
-      <p class="montant">{{ totalEnAttente }} €</p>
+      <p class="montant">{{ summary.unpaidCount || totalEnAttente }}</p>
     </div>
   </div>
 
@@ -52,9 +52,10 @@
         <td>{{ f.type }}</td>
         <td>{{ f.montant }} €</td>
         <td><span [class]="getStatutClass(f.statut)">{{ getStatutTexte(f.statut) }}</span></td>
-        <td>
-          <button *ngIf="f.statut !== 'payee'" class="btn-payer" (click)="marquerPayee(f)">Marquer payée</button>
-          <span *ngIf="f.statut === 'payee'" class="payee-label">✓</span>
+        <td class="actions">
+          <button class="icon-btn view" type="button" title="Voir">👁️</button>
+          <button class="icon-btn export" type="button" title="Export PDF" (click)="exporterPdf(f)">📄</button>
+          <button *ngIf="f.statut !== 'payee'" class="icon-btn edit" type="button" title="Marquer payée" (click)="marquerPayee(f)">✏️</button>
         </td>
       </tr>
     </tbody>

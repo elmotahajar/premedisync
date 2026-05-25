@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { LucideEye, LucidePencil, LucideTrash2 } from '@lucide/angular';
 
 interface Medecin {
   id: number;
@@ -19,7 +20,7 @@ interface Medecin {
 @Component({
   selector: 'app-medecins',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideEye, LucidePencil, LucideTrash2],
   templateUrl: './medecins.html',
   styleUrls: ['./medecins.css']
 })
@@ -56,7 +57,7 @@ export class Medecins implements OnInit {
   }
 
   getEmptyMedecin() {
-    return { nom: '', prenom: '', specialite: '', email: '', telephone: '', tarif: 25, role: 'medecin', actif: true };
+    return { nom: '', prenom: '', specialite: '', email: '', telephone: '', role: 'medecin', actif: true };
   }
 
   ajouter() {
@@ -126,6 +127,6 @@ export class Medecins implements OnInit {
   }
 
   retour() {
-    this.router.navigate(['/admin/dashboard']);
+    this.router.navigate(['/admin/accueil']);
   }
 }

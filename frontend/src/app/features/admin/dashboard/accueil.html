@@ -1,0 +1,120 @@
+<div class="dashboard-container">
+  @if (loading()) {
+    <div class="skeleton-loader">
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+    </div>
+  } @else {
+    <!-- KPI CARDS ROW -->
+    <section class="kpi-section">
+      <h2 class="section-title">Vue d'ensemble</h2>
+      <div class="kpi-grid">
+        @for (card of kpiCards; track card.title) {
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-icon">{{ card.icon }}</span>
+              <div class="kpi-info">
+                <h3 class="kpi-title">{{ card.title }}</h3>
+                @if (card.subtitle) {
+                  <p class="kpi-subtitle">{{ card.subtitle }}</p>
+                }
+              </div>
+            </div>
+            <div class="kpi-value">
+              @if (card.title === 'Revenus') {
+                {{ card.value | number: '1.0-0' }} €
+              } @else {
+                {{ card.value }}
+              }
+            </div>
+            <div class="kpi-trend" [style.color]="getTrendColor(card.trend)">
+              @if (card.trend > 0) {
+                ↑
+              } @else {
+                ↓
+              }
+              <span>{{ Math.abs(card.trend) }}%</span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- CHARTS SECTION -->
+    <section class="charts-section">
+      <h2 class="section-title">Statistiques</h2>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3 class="chart-title">Rendez-vous (30 derniers jours)</h3>
+          <canvas id="appointmentsChart" class="chart-canvas"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Consultations par médecin</h3>
+          <canvas id="consultationsChart" class="chart-canvas"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Patients par statut</h3>
+          <canvas id="patientStatusChart" class="chart-canvas"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Revenus (6 derniers mois)</h3>
+          <canvas id="revenueChart" class="chart-canvas"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOTTOM ROW: RECENT ACTIVITY + QUICK STATS -->
+    <section class="bottom-section">
+      <div class="recent-activity">
+        <h2 class="section-title">Dernières consultations</h2>
+        <div class="activity-table-wrapper">
+          <table class="activity-table">
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Médecin</th>
+                <th>Date & Heure</th>
+                <th>Statut</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (activity of recentActivities; track activity.id) {
+                <tr>
+                  <td class="patient-name">{{ activity.patientName }}</td>
+                  <td>{{ activity.doctorName }}</td>
+                  <td class="date">{{ activity.date }}</td>
+                  <td>
+                    <span class="status-badge" [style.backgroundColor]="getStatusColor(activity.status)">
+                      {{ getStatusLabel(activity.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="view-btn" title="View details">👁️</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="quick-stats">
+        <h2 class="section-title">Stats rapides</h2>
+        <div class="quick-stats-grid">
+          @for (stat of quickStats(); track stat.label) {
+            <div class="quick-stat-card" [style.borderLeftColor]="stat.color">
+              <div class="stat-icon">{{ stat.icon }}</div>
+              <div class="stat-content">
+                <p class="stat-label">{{ stat.label }}</p>
+                <p class="stat-value">{{ stat.value }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+</div>

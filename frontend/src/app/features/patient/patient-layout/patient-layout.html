@@ -1,0 +1,104 @@
+<div class="space-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.closed]="!sidebarOpen()">
+    <div class="sidebar-header">
+      <div class="logo-section">
+        <span class="logo-icon">⚕️</span>
+        <div class="logo-text">
+          <h1 class="logo-title">MediSync</h1>
+          <p class="logo-subtitle">Espace Patient</p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="section-title">NAVIGATION</div>
+        @for (link of sidebarLinks; track link.route) {
+          <a [routerLink]="link.route" routerLinkActive="active" class="nav-item">
+            <span class="nav-icon">{{ link.icon }}</span>
+            <span class="nav-label">{{ link.label }}</span>
+          </a>
+        }
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button (click)="logout()" class="nav-item logout" title="Déconnexion">
+        <span class="nav-icon">🚪</span>
+        <span class="nav-label">Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="space-main">
+    <!-- Topbar -->
+    <header class="topbar">
+      <!-- Left: Hamburger Menu -->
+      <div class="topbar-left">
+        <button class="hamburger-btn" (click)="toggleSidebar()" title="Toggle sidebar">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Center: Page Title -->
+      <div class="topbar-center">
+        <h2 class="page-title">{{ pageTitle() }}</h2>
+      </div>
+
+      <!-- Right: Notifications + Profile -->
+      <div class="topbar-right">
+        <!-- Notifications -->
+        <button class="icon-btn notification-btn" title="Notifications">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          @if (notificationCount() > 0) {
+            <span class="badge">{{ notificationCount() }}</span>
+          }
+        </button>
+
+        <!-- Profile Dropdown -->
+        <div class="profile-section">
+          <button class="profile-btn" (click)="toggleProfileMenu()">
+            <div class="avatar">👤</div>
+            <span class="profile-name">{{ patientName() }}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+
+          <!-- Dropdown Menu -->
+          @if (profileMenuOpen()) {
+            <div class="profile-menu">
+              <a href="#" class="menu-item" (click)="goToProfile(); $event.preventDefault()">
+                <span class="menu-icon">👤</span>
+                <span>Mon profil</span>
+              </a>
+              <a href="#" class="menu-item" (click)="goToProfile(); $event.preventDefault()">
+                <span class="menu-icon">⚙️</span>
+                <span>Paramètres</span>
+              </a>
+              <div class="menu-divider"></div>
+              <button class="menu-item logout-item" (click)="logout()">
+                <span class="menu-icon">🚪</span>
+                <span>Déconnexion</span>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </header>
+
+    <!-- Content Outlet -->
+    <main class="space-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

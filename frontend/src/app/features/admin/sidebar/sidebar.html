@@ -1,0 +1,75 @@
+<aside class="sidebar" [class.closed]="!isOpen">
+  <div class="sidebar-header">
+    <div class="logo-section">
+      <span class="logo-icon">⚕️</span>
+      <div class="logo-text">
+        <h1 class="logo-title">MediSync</h1>
+        <p class="logo-subtitle">Admin Panel</p>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <!-- ACCUEIL Section -->
+    <div class="nav-section">
+      <div class="section-title">ACCUEIL</div>
+      <a routerLink="/admin/accueil" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Accueil</span>
+      </a>
+    </div>
+
+    <!-- GESTION Section -->
+    <div class="nav-section">
+      <div class="section-title">GESTION</div>
+      <a routerLink="/admin/patients" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🧑‍⚕️</span>
+        <span class="nav-label">Patients</span>
+      </a>
+      <a routerLink="/admin/doctors" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">👨‍⚕️</span>
+        <span class="nav-label">Médecins</span>
+      </a>
+      <a routerLink="/admin/secretaries" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">👩‍💼</span>
+        <span class="nav-label">Secrétaires</span>
+      </a>
+      <a routerLink="/admin/appointments" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Rendez-vous</span>
+      </a>
+    </div>
+
+    <!-- ADMINISTRATION Section -->
+    <div class="nav-section">
+      <div class="section-title">ADMINISTRATION</div>
+      <a routerLink="/admin/billing" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">💰</span>
+        <span class="nav-label">Facturation</span>
+      </a>
+      <a routerLink="/admin/etablissement" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🏥</span>
+        <span class="nav-label">Établissement</span>
+      </a>
+      <a routerLink="/admin/salles" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🚪</span>
+        <span class="nav-label">Salles</span>
+      </a>
+      <a routerLink="/admin/logs" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">📜</span>
+        <span class="nav-label">Logs</span>
+      </a>
+      <a routerLink="/admin/settings" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Paramètres</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="nav-item logout" title="Déconnexion">
+      <span class="nav-icon">🚪</span>
+      <span class="nav-label">Déconnexion</span>
+    </button>
+  </div>
+</aside>

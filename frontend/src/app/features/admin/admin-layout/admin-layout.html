@@ -1,0 +1,14 @@
+<div class="admin-shell">
+  <app-sidebar [isOpen]="sidebarOpen()"></app-sidebar>
+  
+  <div class="admin-main">
+    <app-topbar 
+      [pageTitle]="pageTitle()"
+      (toggleSidebar)="toggleSidebar()"
+    ></app-topbar>
+    
+    <main class="admin-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

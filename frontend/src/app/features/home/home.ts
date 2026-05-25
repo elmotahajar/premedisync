@@ -14,11 +14,11 @@ export class Home {
 
   goTo(espace: string) {
     if (espace === 'patient') {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/patient/dashboard']);
     } else if (espace === 'medecin') {
       this.router.navigate(['/medecin/dashboard']);
     } else if (espace === 'secretaire') {
-      this.router.navigate(['/secretaire/']);
+      this.router.navigate(['/secretaire/dashboard']);
     } else if (espace === 'admin') {
       this.router.navigate(['/admin/dashboard']);
     }

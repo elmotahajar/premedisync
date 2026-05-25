@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, throwError, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -10,7 +10,9 @@ export class AuthService {
   private apiUrl = 'http://localhost:3000/api/auth';
 
   inscription(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, data);
+    return this.http.post(`${this.apiUrl}/register`, data).pipe(
+      catchError((error) => throwError(() => this.normaliserErreur(error)))
+    );
   }
 
   register(data: any): Observable<any> {
@@ -24,7 +26,8 @@ export class AuthService {
     }).pipe(
       tap((response: any) => {
         this.sauvegarderToken(response.token, response.user?.role);
-      })
+      }),
+      catchError((error) => throwError(() => this.normaliserErreur(error)))
     );
   }
 
@@ -95,5 +98,10 @@ export class AuthService {
         this.router.navigate(['/patient/dashboard']);
         break;
     }
+  }
+
+  private normaliserErreur(error: any): Error {
+    const message = error?.error?.message || error?.message || 'Une erreur est survenue';
+    return new Error(message);
   }
 }

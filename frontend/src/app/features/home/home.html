@@ -1,40 +1,48 @@
-<div class="home">
-  <div class="container">
-    <h1>MediSync</h1>
-    <p class="subtitle">Système de Gestion de Clinique Médicale</p>
+<section class="home-shell">
+  <div class="ambient-shape shape-a"></div>
+  <div class="ambient-shape shape-b"></div>
 
-    <div class="cards">
-      <!-- Espace Patient -->
-      <div class="card" (click)="goTo('patient')">
+  <div class="home container">
+    <header class="hero">
+      <p class="eyebrow">Plateforme clinique intelligente</p>
+      <h1>MediSync</h1>
+      <p class="subtitle">
+        Gérez les rendez-vous, dossiers médicaux, facturation et suivi patient dans une expérience fluide et sécurisée.
+      </p>
+    </header>
+
+    <div class="cards" role="navigation" aria-label="Choix d'espace">
+      <article class="card card-patient" (click)="goTo('patient')">
         <div class="icon">👤</div>
         <h2>Espace Patient</h2>
-        <p>Prendre rendez-vous<br>Consulter votre dossier médical<br>Télécharger vos ordonnances</p>
-      </div>
+        <p>Rendez-vous, historique médical, ordonnances et suivi en un clic.</p>
+        <button type="button" class="card-cta">Acceder</button>
+      </article>
 
-      <!-- Espace Médecin -->
-      <div class="card" (click)="goTo('medecin')">
+      <article class="card card-medecin" (click)="goTo('medecin')">
         <div class="icon">👨‍⚕️</div>
-        <h2>Espace Médecin</h2>
-        <p>Gérer votre planning<br>Consulter dossiers patients<br>Prescriptions électroniques</p>
-      </div>
+        <h2>Espace Medecin</h2>
+        <p>Planning, consultation des dossiers, prescriptions et disponibilites.</p>
+        <button type="button" class="card-cta">Acceder</button>
+      </article>
 
-      <!-- Espace Secrétaire -->
-      <div class="card" (click)="goTo('secretaire')">
+      <article class="card card-secretaire" (click)="goTo('secretaire')">
         <div class="icon">📋</div>
-        <h2>Espace Secrétaire</h2>
-        <p>Gestion des rendez-vous<br>Création comptes patients<br>Facturation</p>
-      </div>
+        <h2>Espace Secretaire</h2>
+        <p>Orchestration des rendez-vous, accueil patients et facturation.</p>
+        <button type="button" class="card-cta">Acceder</button>
+      </article>
 
-      <!-- Espace Administrateur -->
-      <div class="card" (click)="goTo('admin')">
+      <article class="card card-admin" (click)="goTo('admin')">
         <div class="icon">⚙️</div>
         <h2>Espace Administrateur</h2>
-        <p>Gérer l'établissement<br>Gérer les médecins et secrétaires<br>Gérer les salles et facturation</p>
-      </div>
+        <p>Pilotage global: equipes, salles, rapports et journal d'audit.</p>
+        <button type="button" class="card-cta">Acceder</button>
+      </article>
     </div>
 
-    <div class="footer">
-      <p>©️ 2026 MediSync - Tous droits réservés</p>
-    </div>
+    <footer class="footer">
+      <p>2026 MediSync. Concu pour les cliniques exigeantes.</p>
+    </footer>
   </div>
-</div>
+</section>

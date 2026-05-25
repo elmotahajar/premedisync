@@ -36,6 +36,8 @@ export class AuditLogs {
   filtreAction: string = 'toutes';
   filtreRole: string = 'tous';
   searchText: string = '';
+  dateDebut = '';
+  dateFin = '';
 
   actions = ['toutes', 'Connexion', 'Consultation dossier', 'Création rendez-vous', 'Modification utilisateur', 'Prescription', 'Facturation'];
   roles = ['tous', 'admin', 'medecin', 'secretaire', 'patient'];
@@ -60,6 +62,14 @@ export class AuditLogs {
       );
     }
 
+    if (this.dateDebut) {
+      result = result.filter(l => l.date >= this.dateDebut);
+    }
+
+    if (this.dateFin) {
+      result = result.filter(l => l.date <= this.dateFin);
+    }
+
     return result;
   }
 
@@ -82,6 +92,19 @@ export class AuditLogs {
   }
 
   retour() {
-    this.router.navigate(['/admin/dashboard']);
+    this.router.navigate(['/admin/accueil']);
+  }
+
+  exportCsv() {
+    const header = ['Date', 'Heure', 'Utilisateur', 'Role', 'Action', 'Details', 'IP'];
+    const rows = this.logsFiltres.map(log => [log.date, log.heure, log.utilisateur, log.role, log.action, log.details, log.ip]);
+    const csv = [header, ...rows].map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'audit-logs.csv';
+    link.click();
+    URL.revokeObjectURL(url);
   }
 }

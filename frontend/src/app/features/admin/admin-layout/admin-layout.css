@@ -1,0 +1,66 @@
+:host {
+  --admin-bg: #0f172a;
+  --admin-card: #1e293b;
+  --admin-text: #f1f5f9;
+  --admin-border: #334155;
+  --admin-primary: #0ea5e9;
+  --sidebar-width: 280px;
+  --topbar-height: 64px;
+}
+
+.admin-shell {
+  display: flex;
+  height: 100vh;
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  font-family: 'Inter', 'Roboto', sans-serif;
+}
+
+.admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--admin-primary) var(--admin-bg);
+}
+
+.admin-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.admin-content::-webkit-scrollbar-track {
+  background: var(--admin-bg);
+}
+
+.admin-content::-webkit-scrollbar-thumb {
+  background: var(--admin-primary);
+  border-radius: 4px;
+}
+
+.admin-content::-webkit-scrollbar-thumb:hover {
+  background: #0284c7;
+}
+
+/* Responsive: mobile sidebar collapse */
+@media (max-width: 900px) {
+  .admin-shell {
+    position: relative;
+  }
+  
+  app-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    z-index: 1000;
+  }
+}

@@ -1,23 +1,39 @@
-<div style="padding: 50px; max-width: 400px; margin: auto;">
-  <h2>Connexion</h2>
+<section class="auth-shell">
+  <div class="auth-panel">
+    <div class="brand-block">
+      <p class="eyebrow">MediSync</p>
+      <h1>Connexion sécurisée</h1>
+      <p class="subtitle">Accédez à votre espace patient, médecin, secrétaire ou administrateur.</p>
+    </div>
 
-  <div>
-    <label>Email</label><br>
-    <input type="email" [(ngModel)]="email" style="width: 100%; padding: 8px; margin: 8px 0;">
+    <form class="auth-form" [formGroup]="form" (ngSubmit)="connexion()">
+      <div class="form-field">
+        <label for="email">Email</label>
+        <input id="email" class="form-input" type="email" formControlName="email" placeholder="votre@email.com" />
+        @if (champInvalide('email')) {
+          <small class="error">Entrez un email valide.</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="password">Mot de passe</label>
+        <input id="password" class="form-input" type="password" formControlName="password" placeholder="Votre mot de passe" />
+        @if (champInvalide('password')) {
+          <small class="error">Le mot de passe doit contenir au moins 8 caractères.</small>
+        }
+      </div>
+
+      @if (erreur()) {
+        <div class="alert alert-error">{{ erreur() }}</div>
+      }
+
+      <button class="primary-btn" type="submit" [disabled]="chargement()">
+        {{ chargement() ? 'Connexion...' : 'Se connecter' }}
+      </button>
+    </form>
+
+    <p class="switch-link">
+      Nouveau ici ? <button type="button" class="text-btn" (click)="allerInscription()">Créer un compte</button>
+    </p>
   </div>
-
-  <div>
-    <label>Mot de passe</label><br>
-    <input type="password" [(ngModel)]="password" style="width: 100%; padding: 8px; margin: 8px 0;">
-  </div>
-
-  <p *ngIf="erreur()" style="color: red;">{{ erreur() }}</p>
-
-  <button (click)="connexion()" style="padding: 8px 20px;" [disabled]="chargement()">
-    {{ chargement() ? 'Connexion...' : 'Se connecter' }}
-  </button>
-
-  <p style="margin-top: 20px;">
-    <a routerLink="/inscription">S'inscrire</a>
-  </p>
-</div>
+</section>

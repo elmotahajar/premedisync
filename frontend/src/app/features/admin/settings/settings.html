@@ -1,0 +1,102 @@
+<div class="container admin-page">
+  <div class="header">
+    <button class="btn-back" (click)="retour()">← Retour</button>
+    <h1>Paramètres</h1>
+  </div>
+
+  <div class="toast" *ngIf="message()">{{ message() }}</div>
+
+  <div class="tabs">
+    <button class="tab" [class.active]="activeTab() === 'account'" (click)="setTab('account')">Compte Admin</button>
+    <button class="tab" [class.active]="activeTab() === 'security'" (click)="setTab('security')">Sécurité</button>
+    <button class="tab" [class.active]="activeTab() === 'notifications'" (click)="setTab('notifications')">Notifications</button>
+    <button class="tab" [class.active]="activeTab() === 'appearance'" (click)="setTab('appearance')">Apparence</button>
+  </div>
+
+  @if (activeTab() === 'account') {
+    <section class="panel">
+      <h2>Compte Admin</h2>
+      <div class="grid-2">
+        <div>
+          <label>Nom</label>
+          <input class="admin-input" [(ngModel)]="admin.nom">
+        </div>
+        <div>
+          <label>Email</label>
+          <input class="admin-input" [(ngModel)]="admin.email">
+        </div>
+        <div class="full-width">
+          <label>Mot de passe</label>
+          <div class="password-row">
+            <input class="admin-input" type="password" [(ngModel)]="admin.password">
+            <button class="secondary-btn" type="button" (click)="save('Compte Admin')">Modifier</button>
+          </div>
+        </div>
+      </div>
+      <button class="primary-btn" (click)="save('Compte Admin')">Enregistrer</button>
+    </section>
+  }
+
+  @if (activeTab() === 'security') {
+    <section class="panel">
+      <h2>Sécurité</h2>
+      <div class="setting-row">
+        <div>
+          <strong>2FA TOTP</strong>
+          <p>Google Authenticator</p>
+        </div>
+        <button class="toggle" (click)="toggleTwoFa()">{{ security.twoFa ? 'Activé' : 'Désactivé' }}</button>
+      </div>
+      @if (security.qrVisible) {
+        <div class="qr-box">QR Code 2FA</div>
+      }
+      <div class="grid-2">
+        <div>
+          <label>Session timeout</label>
+          <select class="admin-select" [(ngModel)]="security.sessionTimeout">
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+            <option value="60">60 min</option>
+          </select>
+        </div>
+      </div>
+      <button class="primary-btn" (click)="save('Sécurité')">Enregistrer</button>
+    </section>
+  }
+
+  @if (activeTab() === 'notifications') {
+    <section class="panel">
+      <h2>Notifications</h2>
+      <div class="switch-list">
+        <label><input type="checkbox" [(ngModel)]="notifications.emailRappels"> Email rappels rendez-vous</label>
+        <label><input type="checkbox" [(ngModel)]="notifications.alertesImpayes"> Alertes impayés</label>
+        <label><input type="checkbox" [(ngModel)]="notifications.rapportJournalier"> Rapport journalier</label>
+      </div>
+      <button class="primary-btn" (click)="save('Notifications')">Enregistrer</button>
+    </section>
+  }
+
+  @if (activeTab() === 'appearance') {
+    <section class="panel">
+      <h2>Apparence</h2>
+      <div class="grid-2">
+        <div>
+          <label>Theme</label>
+          <select class="admin-select" [(ngModel)]="appearance.theme">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </div>
+        <div>
+          <label>Langue</label>
+          <select class="admin-select" [(ngModel)]="appearance.language">
+            <option value="fr">FR</option>
+            <option value="en">EN</option>
+            <option value="ar">AR</option>
+          </select>
+        </div>
+      </div>
+      <button class="primary-btn" (click)="save('Apparence')">Enregistrer</button>
+    </section>
+  }
+</div>

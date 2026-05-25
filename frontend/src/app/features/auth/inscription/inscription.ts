@@ -18,7 +18,11 @@ export class Inscription {
     nom: ['', [Validators.required, Validators.minLength(2)]],
     prenom: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
-    motDePasse: ['', [Validators.required, Validators.minLength(8)]],
+    motDePasse: ['', [
+      Validators.required,
+      Validators.minLength(8),
+      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/)
+    ]],
     telephone: ['']
   });
 
@@ -31,6 +35,11 @@ export class Inscription {
   champInvalide(champ: string): boolean {
     const c = this.form.get(champ);
     return !!(c?.invalid && (c.dirty || c.touched));
+  }
+
+  passwordPolicyViolated(): boolean {
+    const control = this.form.get('motDePasse');
+    return !!(control?.errors?.['pattern'] && (control.dirty || control.touched));
   }
 
   soumettre(): void {
@@ -61,7 +70,7 @@ export class Inscription {
         }, 2000);
       },
       error: (err) => {
-        this.erreur.set(err.error?.message || 'Erreur lors de l\'inscription');
+        this.erreur.set(err?.message || 'Erreur lors de l\'inscription');
         this.chargement.set(false);
       }
     });

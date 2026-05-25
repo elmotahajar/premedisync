@@ -16,11 +16,18 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+const notificationsEmailsConfigures = Boolean(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD);
+
 // ─────────────────────────────────────────
 // 2. FONCTION ENVOI EMAIL
 // ─────────────────────────────────────────
 const envoyerEmail = async (destinataire, sujet, contenu) => {
   try {
+    if (!notificationsEmailsConfigures) {
+      console.warn('⚠️ Notifications email désactivées: EMAIL_USER / EMAIL_PASSWORD manquants');
+      return;
+    }
+
     await transporter.sendMail({
       from: `"MediSync" <${process.env.EMAIL_USER}>`,
       to: destinataire,
@@ -151,6 +158,11 @@ const envoyerRappels = async () => {
 // 5. TÂCHE AUTOMATIQUE — toutes les 30 min
 // ─────────────────────────────────────────
 const demarrerTacheNotifications = () => {
+  if (!notificationsEmailsConfigures) {
+    console.warn('⚠️ Tâche notifications non démarrée: configuration email incomplète');
+    return;
+  }
+
   cron.schedule('*/30 * * * *', () => {
     console.log('🔔 Vérification des rappels RDV...');
     envoyerRappels();

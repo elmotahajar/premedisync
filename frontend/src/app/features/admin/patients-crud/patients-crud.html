@@ -1,0 +1,139 @@
+<div class="admin-page patients-page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Administration</p>
+      <h1>Patients</h1>
+      <p class="subtext">Recherche, filtres, pagination et suppression en lot.</p>
+    </div>
+    <button class="primary-btn" (click)="openCreate()">+ Ajouter un patient</button>
+  </div>
+
+  @if (toast()) {
+    <div class="toast">{{ toast() }}</div>
+  }
+
+  <div class="filters admin-surface">
+    <input class="admin-input" type="search" placeholder="Rechercher un patient" [value]="search()" (input)="search.set(($any($event.target)).value)">
+    <select class="admin-select" [value]="statusFilter()" (change)="statusFilter.set(($any($event.target)).value)">
+      <option value="tous">Tous les statuts</option>
+      <option value="actif">Actif</option>
+      <option value="inactif">Inactif</option>
+    </select>
+    <input class="admin-input" type="date" [value]="dateFilter()" (change)="dateFilter.set(($any($event.target)).value)">
+    <button class="secondary-btn" (click)="bulkDelete()" [disabled]="!selected().length">Supprimer sélection</button>
+  </div>
+
+  <div class="table-wrap admin-surface">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" [checked]="selected().length === paginatedPatients().length && paginatedPatients().length > 0" (change)="toggleSelectAll(($any($event.target)).checked)"></th>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (patient of paginatedPatients(); track patient.id) {
+          <tr>
+            <td><input type="checkbox" [checked]="selected().includes(patient.id)" (change)="toggleSelected(patient.id, ($any($event.target)).checked)"></td>
+            <td>{{ patient.lastName }}</td>
+            <td>{{ patient.firstName }}</td>
+            <td>{{ patient.email }}</td>
+            <td>{{ patient.phone }}</td>
+            <td><span class="admin-badge" [class.success]="patient.status === 'actif'" [class.danger]="patient.status === 'inactif'">{{ patient.status }}</span></td>
+            <td>
+              <div class="actions">
+                <button class="icon-action view" type="button" (click)="openView(patient)">👁️</button>
+                <button class="icon-action edit" type="button" (click)="openEdit(patient)">✏️</button>
+                <button class="icon-action delete" type="button" (click)="deletePatient(patient)">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        }
+        @if (!paginatedPatients().length) {
+          <tr><td colspan="7"><div class="admin-empty">Aucun patient trouvé</div></td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <button class="secondary-btn" (click)="prevPage()" [disabled]="page() === 1">Précédent</button>
+    <span>Page {{ page() }} / {{ totalPages() }}</span>
+    <button class="secondary-btn" (click)="nextPage()" [disabled]="page() === totalPages()">Suivant</button>
+  </div>
+
+  @if (showModal()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <div class="modal-panel" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>{{ viewMode() ? 'Détails patient' : (editId ? 'Modifier patient' : 'Ajouter patient') }}</h2>
+          <button class="icon-action" type="button" (click)="closeModal()">✕</button>
+        </div>
+        <form [formGroup]="form" class="modal-form" (ngSubmit)="save()">
+          <div class="grid-2">
+            <div>
+              <label>Prénom *</label>
+              <input class="admin-input" formControlName="firstName" [readonly]="viewMode()">
+            </div>
+            <div>
+              <label>Nom *</label>
+              <input class="admin-input" formControlName="lastName" [readonly]="viewMode()">
+            </div>
+            <div>
+              <label>Email *</label>
+              <input class="admin-input" formControlName="email" [readonly]="viewMode()">
+            </div>
+            <div>
+              <label>Téléphone *</label>
+              <input class="admin-input" formControlName="phone" [readonly]="viewMode()">
+            </div>
+            <div>
+              <label>Date de naissance *</label>
+              <input class="admin-input" type="date" formControlName="dateOfBirth" [readonly]="viewMode()">
+            </div>
+            <div>
+              <label>Genre *</label>
+              <select class="admin-select" formControlName="gender" [disabled]="viewMode()">
+                <option value="M">M</option>
+                <option value="F">F</option>
+                <option value="Autre">Autre</option>
+              </select>
+            </div>
+            <div class="full-width">
+              <label>Adresse</label>
+              <textarea class="admin-textarea" rows="3" formControlName="address" [readonly]="viewMode()"></textarea>
+            </div>
+            <div>
+              <label>NSS</label>
+              <input class="admin-input" formControlName="socialSecurityNumber" [readonly]="viewMode()">
+            </div>
+            <div>
+              <label>Statut *</label>
+              <select class="admin-select" formControlName="status" [disabled]="viewMode()">
+                <option value="actif">Actif</option>
+                <option value="inactif">Inactif</option>
+              </select>
+            </div>
+            @if (!editId) {
+              <div class="full-width">
+                <label>Mot de passe *</label>
+                <input class="admin-input" type="password" formControlName="password" [readonly]="viewMode()">
+              </div>
+            }
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="secondary-btn" (click)="closeModal()">Fermer</button>
+            @if (!viewMode()) {
+              <button type="button" class="primary-btn" [disabled]="loading()" (click)="save()">{{ loading() ? 'Enregistrement...' : 'Enregistrer' }}</button>
+            }
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

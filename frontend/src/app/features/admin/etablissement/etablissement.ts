@@ -15,11 +15,12 @@ export class Etablissement {
 
   clinique = {
     nom: 'MediSync Clinique',
-    adresse: '123 Avenue de la Santé, 75001 Paris',
+    adresse: '123 Avenue de la Santé',
+    ville: 'Paris',
+    codePostal: '75001',
     telephone: '01 23 45 67 89',
     email: 'contact@medisync.fr',
-    horaires: 'Lundi - Vendredi: 8h00 - 20h00, Samedi: 9h00 - 17h00',
-    presentation: 'Clinique moderne dédiée aux soins de qualité avec une équipe de médecins expérimentés.'
+    siteWeb: 'https://medisync.fr'
   };
 
   specialites: string[] = [
@@ -32,6 +33,18 @@ export class Etablissement {
 
   nouvelleSpecialite = '';
   message = '';
+  logoPreview = '';
+  coverPreview = '';
+
+  horaires = [
+    { jour: 'Lundi', ouvert: true, debut: '08:00', fin: '18:00' },
+    { jour: 'Mardi', ouvert: true, debut: '08:00', fin: '18:00' },
+    { jour: 'Mercredi', ouvert: true, debut: '08:00', fin: '18:00' },
+    { jour: 'Jeudi', ouvert: true, debut: '08:00', fin: '18:00' },
+    { jour: 'Vendredi', ouvert: true, debut: '08:00', fin: '18:00' },
+    { jour: 'Samedi', ouvert: true, debut: '09:00', fin: '13:00' },
+    { jour: 'Dimanche', ouvert: false, debut: '00:00', fin: '00:00' }
+  ];
 
   ajouterSpecialite() {
     if (this.nouvelleSpecialite.trim()) {
@@ -48,12 +61,30 @@ export class Etablissement {
     setTimeout(() => this.message = '', 2000);
   }
 
+  onLogoUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => this.logoPreview = String(reader.result || '');
+    reader.readAsDataURL(file);
+  }
+
+  onCoverUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => this.coverPreview = String(reader.result || '');
+    reader.readAsDataURL(file);
+  }
+
   sauvegarder() {
     this.message = 'Informations sauvegardées !';
     setTimeout(() => this.message = '', 2000);
   }
 
   retour() {
-    this.router.navigate(['/admin/dashboard']);
+    this.router.navigate(['/admin/accueil']);
   }
 }

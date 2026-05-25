@@ -1,0 +1,143 @@
+<div class="dashboard-container">
+  @if (loading()) {
+    <div class="skeleton-loader">
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+      <div class="skeleton skeleton-card"></div>
+    </div>
+  } @else {
+    <!-- Welcome Header -->
+    <div class="welcome-header">
+      <h1 class="welcome-title">Bonjour, {{ patient().prenom }} {{ patient().nom }}</h1>
+      <p class="welcome-subtitle">Bienvenue dans votre espace santé personnel.</p>
+    </div>
+
+    <!-- KPI CARDS ROW -->
+    <section class="kpi-section">
+      <div class="kpi-grid">
+        <!-- Card 1: Prochain RDV -->
+        <div class="kpi-card" routerLink="/patient/rendezvous">
+          <div class="kpi-header">
+            <span class="kpi-icon">📅</span>
+            <div class="kpi-info">
+              <h3 class="kpi-title">Prochain RDV</h3>
+              <p class="kpi-subtitle">Votre consultation planifiée</p>
+            </div>
+          </div>
+          <div class="kpi-value" style="font-size: 16px; margin-top: 8px;">
+            @if (prochainRdv()) {
+              {{ prochainRdv().dateHeure | date: 'dd/MM/yyyy HH:mm' }}<br>
+              <span style="font-size: 13px; color: var(--text-muted);">
+                avec {{ prochainRdv().medecinNom || prochainRdv().medecin?.nom || 'Dr. Martin' }}
+              </span>
+            } @else {
+              Aucun RDV planifié
+            }
+          </div>
+        </div>
+
+        <!-- Card 2: Total Consultations -->
+        <div class="kpi-card" routerLink="/patient/dossier">
+          <div class="kpi-header">
+            <span class="kpi-icon">📋</span>
+            <div class="kpi-info">
+              <h3 class="kpi-title">Total Consultations</h3>
+              <p class="kpi-subtitle">Historique des visites</p>
+            </div>
+          </div>
+          <div class="kpi-value">{{ totalConsultations() }}</div>
+        </div>
+
+        <!-- Card 3: Ordonnances Actives -->
+        <div class="kpi-card" routerLink="/patient/ordonnances">
+          <div class="kpi-header">
+            <span class="kpi-icon">💊</span>
+            <div class="kpi-info">
+              <h3 class="kpi-title">Ordonnances Actives</h3>
+              <p class="kpi-subtitle">Traitements en cours</p>
+            </div>
+          </div>
+          <div class="kpi-value">{{ ordonnancesActives() }}</div>
+        </div>
+
+        <!-- Card 4: Dernière Évaluation -->
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-icon">⭐</span>
+            <div class="kpi-info">
+              <h3 class="kpi-title">Dernière Évaluation</h3>
+              <p class="kpi-subtitle">Note donnée à l'établissement</p>
+            </div>
+          </div>
+          <div class="kpi-value">{{ derniereEvaluation() }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUICK ACTIONS -->
+    <section class="quick-actions-section">
+      <h2 class="section-title">Actions rapides</h2>
+      <div class="quick-actions-grid">
+        <button class="action-btn-card" routerLink="/patient/rendezvous">
+          <span class="action-icon">📅</span>
+          <span class="action-label">Prendre un RDV</span>
+        </button>
+        <button class="action-btn-card" routerLink="/patient/dossier">
+          <span class="action-icon">📋</span>
+          <span class="action-label">Voir mon dossier</span>
+        </button>
+        <button class="action-btn-card" routerLink="/patient/ordonnances">
+          <span class="action-icon">💊</span>
+          <span class="action-label">Mes ordonnances</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- BOTTOM ROW: RECENT RDV -->
+    <section class="bottom-section">
+      <div class="recent-activity" style="width: 100%;">
+        <h2 class="section-title">Mes derniers rendez-vous</h2>
+        <div class="activity-table-wrapper">
+          <table class="activity-table">
+            <thead>
+              <tr>
+                <th>Médecin</th>
+                <th>Spécialité</th>
+                <th>Date & Heure</th>
+                <th>Statut</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (rdv of recentRdv(); track rdv.id) {
+                <tr>
+                  <td class="patient-name">
+                    {{ rdv.medecinNom || rdv.medecin?.nom || 'Dr. Martin' }}
+                  </td>
+                  <td>{{ rdv.specialite || rdv.medecin?.specialite || 'Généraliste' }}</td>
+                  <td class="date">{{ rdv.dateHeure | date: 'dd/MM/yyyy à HH:mm' }}</td>
+                  <td>
+                    <span class="status-badge" [style.backgroundColor]="getStatusColor(rdv.statut)">
+                      {{ rdv.statut || 'Confirmé' }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="view-btn" routerLink="/patient/dossier" title="Dossier">👁️</button>
+                  </td>
+                </tr>
+              }
+              @if (recentRdv().length === 0) {
+                <tr>
+                  <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                    Aucun rendez-vous enregistré.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  }
+</div>

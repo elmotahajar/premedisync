@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container admin-page">
   <div class="header">
     <button class="btn-back" (click)="retour()">← Retour</button>
     <h1>Gestion des Salles</h1>
@@ -21,9 +21,9 @@
         <td>{{ s.equipements }}</td>
         <td><span class="badge" [class.active]="s.disponible" [class.inactive]="!s.disponible">{{ s.disponible ? 'Disponible' : 'Indisponible' }}</span></td>
         <td class="actions">
-          <button class="edit" (click)="modifier(s)">✏️</button>
-          <button class="toggle" (click)="toggleDisponible(s)">{{ s.disponible ? '🔴' : '🟢' }}</button>
-          <button class="delete" (click)="supprimer(s.id)">🗑️</button>
+          <button class="icon-btn edit" type="button" title="Modifier" (click)="modifier(s)">✏️</button>
+          <button class="toggle-btn" type="button" (click)="toggleDisponible(s)">{{ s.disponible ? '🟢 Disponible' : '🔴 Occupée' }}</button>
+          <button class="icon-btn delete" type="button" title="Supprimer" (click)="supprimer(s.id)">🗑️</button>
         </td>
       </tr>
     </tbody>
@@ -37,15 +37,15 @@
         <button class="close" (click)="fermerModal()">✖</button>
       </div>
       <div class="modal-body">
-        <input placeholder="Nom de la salle" [(ngModel)]="currentSalle.nom">
+        <input class="admin-input" placeholder="Nom de la salle" [(ngModel)]="currentSalle.nom">
         
-        <select [(ngModel)]="currentSalle.type">
+        <select class="admin-select" [(ngModel)]="currentSalle.type">
           <option value="">Sélectionner le type</option>
           <option *ngFor="let t of typesSalle" [value]="t">{{ t }}</option>
         </select>
         
-        <input placeholder="Capacité (nombre de personnes)" type="number" [(ngModel)]="currentSalle.capacite">
-        <input placeholder="Équipements" [(ngModel)]="currentSalle.equipements">
+        <input class="admin-input" placeholder="Capacité (nombre de personnes)" type="number" [(ngModel)]="currentSalle.capacite">
+        <input class="admin-input" placeholder="Équipements" [(ngModel)]="currentSalle.equipements">
       </div>
       <div class="modal-footer">
         <button class="cancel" (click)="fermerModal()">Annuler</button>

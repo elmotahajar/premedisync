@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { LucideEye, LucidePencil, LucideTrash2 } from '@lucide/angular';
 
 interface Secretaire {
   id: number;
@@ -17,7 +18,7 @@ interface Secretaire {
 @Component({
   selector: 'app-secretaires',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideEye, LucidePencil, LucideTrash2],
   templateUrl: './secretaires.html',
   styleUrls: ['./secretaires.css']
 })
@@ -123,6 +124,6 @@ export class Secretaires implements OnInit {
   }
 
   retour() {
-    this.router.navigate(['/admin/dashboard']);
+    this.router.navigate(['/admin/accueil']);
   }
 }
