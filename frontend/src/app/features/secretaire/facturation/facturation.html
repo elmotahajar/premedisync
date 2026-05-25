@@ -1,0 +1,84 @@
+<div class="container">
+  <header class="header">
+    <h1>MediSync</h1>
+    <a routerLink="/secretaire">← Retour</a>
+  </header>
+
+  <main class="main">
+    <div class="titre-action">
+      <h2>Facturation</h2>
+      <button class="btn-ajouter" (click)="afficherFormulaire.set(!afficherFormulaire())">
+        + Nouvelle Facture
+      </button>
+    </div>
+
+    @if (messageSucces()) {
+      <div class="message-succes">{{ messageSucces() }}</div>
+    }
+
+    @if (afficherFormulaire()) {
+      <div class="formulaire">
+        <h3>Nouvelle Facture</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Patient</label>
+            <input type="text" [(ngModel)]="nouvelleFacture.patient" placeholder="Nom du patient" />
+          </div>
+          <div class="form-group">
+            <label>Médecin</label>
+            <select [(ngModel)]="nouvelleFacture.medecin">
+              <option value="">-- Choisir --</option>
+              <option value="Dr. Alaoui">Dr. Alaoui</option>
+              <option value="Dr. Benali">Dr. Benali</option>
+              <option value="Dr. Idrissi">Dr. Idrissi</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" [(ngModel)]="nouvelleFacture.date" />
+          </div>
+          <div class="form-group">
+            <label>Acte réalisé</label>
+            <select [(ngModel)]="nouvelleFacture.acte">
+              <option value="">-- Choisir --</option>
+              <option value="Consultation générale">Consultation générale</option>
+              <option value="Suivi">Suivi</option>
+              <option value="Prise de sang">Prise de sang</option>
+              <option value="Radiologie">Radiologie</option>
+              <option value="Urgence">Urgence</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Montant (MAD)</label>
+            <input type="number" [(ngModel)]="nouvelleFacture.montantTotal" placeholder="000" />
+          </div>
+        </div>
+        <button class="btn-confirmer" (click)="ajouterFacture()">Émettre la facture</button>
+      </div>
+    }
+
+    <div class="liste">
+      @for (facture of factures(); track facture.id) {
+        <div class="card">
+          <div class="info">
+            <h3>{{ facture.patient }}</h3>
+            <p>👨‍⚕️ {{ facture.medecin }}</p>
+            <p>🗓️ {{ facture.date }}</p>
+            <p>🩺 {{ facture.actes.join(', ') }}</p>
+          </div>
+          <div class="montant-section">
+            <span class="montant">{{ facture.montantTotal }} MAD</span>
+            <span [class]="'statut ' + facture.statut">{{ facture.statut }}</span>
+          </div>
+          <div class="actions">
+            @if (facture.statut === 'en attente') {
+              <button class="btn-payer" (click)="marquerPayee(facture.id)">✅ Payée</button>
+              <button class="btn-annuler" (click)="annulerFacture(facture.id)">❌ Annuler</button>
+            }
+            <button class="btn-pdf" (click)="exporterPDF(facture)">📄 PDF</button>
+          </div>
+        </div>
+      }
+    </div>
+  </main>
+</div>

@@ -1,0 +1,19 @@
+<div class="documents-container">
+  <div class="top-bar">
+    <button class="btn-retour" (click)="retour()">← Retour</button>
+    <h2>Mes Documents Médicaux</h2>
+  </div>
+
+  <div class="upload-zone">
+    <div class="upload-icon">📁</div>
+    <p>Téléverser un document médical</p>
+    <span class="formats">Formats acceptés : PDF, JPG, PNG — Max 20 Mo</span>
+    <label class="btn-upload">
+      Choisir un fichier
+      <input type="file" accept=".pdf,.jpg,.jpeg,.png" (change)="onFichierSelectionne($event)" hidden />
+    </label>
+  </div>
+
+  <div class="success" *ngIf="messageSucces">✅ {{ messageSucces }}</div>
+  <div class="error" *ngIf="messageErreur">❌ {{ messageErreur }}</div>
+</div>

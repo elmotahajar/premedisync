@@ -1,0 +1,209 @@
+.container {
+  min-height: 100vh;
+  background-color: #f0f4f8;
+}
+
+.header {
+  background-color: #0f766e;
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.header a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.main {
+  padding: 40px 30px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.titre-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.titre-action h2 {
+  color: #374151;
+  margin: 0;
+}
+
+.btn-ajouter {
+  background-color: #0f766e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.message-succes {
+  background-color: #dcfce7;
+  color: #16a34a;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.formulaire {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  margin-bottom: 25px;
+}
+
+.formulaire h3 {
+  color: #0f766e;
+  margin-bottom: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+label {
+  color: #374151;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+input, select {
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.btn-confirmer {
+  background-color: #0f766e;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.liste {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.info h3 {
+  color: #1e40af;
+  margin: 0 0 5px;
+}
+
+.info p {
+  color: #6b7280;
+  margin: 3px 0;
+  font-size: 14px;
+}
+
+.montant-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.montant {
+  font-size: 22px;
+  font-weight: bold;
+  color: #0f766e;
+}
+
+.statut {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statut.payée {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.statut.annulée {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.statut.en\ attente {
+  background-color: #fef9c3;
+  color: #ca8a04;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-payer {
+  background-color: #16a34a;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-annuler {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-pdf {
+  background-color: #1e40af;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}

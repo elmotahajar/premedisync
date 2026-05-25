@@ -1,0 +1,23 @@
+<div style="padding: 50px; max-width: 400px; margin: auto;">
+  <h2>Connexion</h2>
+
+  <div>
+    <label>Email</label><br>
+    <input type="email" [(ngModel)]="email" style="width: 100%; padding: 8px; margin: 8px 0;">
+  </div>
+
+  <div>
+    <label>Mot de passe</label><br>
+    <input type="password" [(ngModel)]="password" style="width: 100%; padding: 8px; margin: 8px 0;">
+  </div>
+
+  <p *ngIf="erreur()" style="color: red;">{{ erreur() }}</p>
+
+  <button (click)="connexion()" style="padding: 8px 20px;" [disabled]="chargement()">
+    {{ chargement() ? 'Connexion...' : 'Se connecter' }}
+  </button>
+
+  <p style="margin-top: 20px;">
+    <a routerLink="/inscription">S'inscrire</a>
+  </p>
+</div>

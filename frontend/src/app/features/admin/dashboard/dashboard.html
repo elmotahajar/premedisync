@@ -1,0 +1,49 @@
+<div class="admin-container">
+  <div class="header">
+    <h1>Dashboard Administrateur</h1>
+    <button class="btn-home" (click)="retourAccueil()">🏠 Accueil</button>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card">📊 Consultations: {{ stats.totalConsultations }}</div>
+    <div class="stat-card">👥 Patients: {{ stats.totalPatients }}</div>
+    <div class="stat-card">👨‍⚕️ Médecins: {{ stats.totalMedecins }}</div>
+    <div class="stat-card">💰 Revenus: {{ stats.revenusMois }} €</div>
+  </div>
+
+  <!-- MENU ADMIN -->
+  <h2>Gestion</h2>
+  <div class="menu">
+    <div class="menu-card" (click)="goTo('etablissement')">
+      <span class="icon">🏥</span>
+      <h3>Établissement</h3>
+      <p>Gérer les informations de la clinique</p>
+    </div>
+    <div class="menu-card" (click)="goTo('medecins')">
+      <span class="icon">👨‍⚕️</span>
+      <h3>Médecins</h3>
+      <p>Ajouter, modifier ou supprimer des médecins</p>
+    </div>
+    <div class="menu-card" (click)="goTo('secretaires')">
+      <span class="icon">📋</span>
+      <h3>Secrétaires</h3>
+      <p>Gérer le personnel administratif</p>
+    </div>
+    <div class="menu-card" (click)="goTo('salles')">
+      <span class="icon">🚪</span>
+      <h3>Salles</h3>
+      <p>Gérer les salles de consultation</p>
+    </div>
+    <div class="menu-card" (click)="goTo('facturation')">
+      <span class="icon">💰</span>
+      <h3>Facturation</h3>
+      <p>Suivi des paiements et factures</p>
+    </div>
+    <div class="menu-card" (click)="goTo('audit-logs')">
+      <span class="icon">📜</span>
+      <h3>Audit Logs</h3>
+      <p>Journal des actions sensibles</p>
+    </div>
+  </div>
+</div>

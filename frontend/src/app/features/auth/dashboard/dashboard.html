@@ -1,0 +1,58 @@
+<div class="dashboard">
+  <header class="header">
+    <h1>MediSync</h1>
+    <div class="user-info">
+      <span>Bonjour, Patient</span>
+      <button (click)="seDeconnecter()">Se déconnecter</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <h2>Mon Espace Patient</h2>
+
+      <div class="card" routerLink="/mes-rdv">
+        <span class="icon">📅</span>
+        <h3>Rendez-vous</h3>
+        <p>Prendre ou gérer vos rendez-vous</p>
+      </div>
+
+      <div class="card" routerLink="/dossier">
+        <span class="icon">📋</span> 
+        <h3>Dossier Médical</h3>
+        <p>Consulter votre historique médical</p>
+      </div>
+
+      <div class="card" routerLink="/ordonnances">
+        <span class="icon">💊</span>
+        <h3>Ordonnances</h3>
+        <p>Voir et télécharger vos ordonnances</p>
+      </div>
+
+      <div class="card" routerLink="/notifications">
+        <span class="icon">🔔</span>
+        <h3>Notifications</h3>
+        <p>Vos rappels et alertes</p>
+      </div>
+
+      <div class="card" routerLink="/profil">
+        <span class="icon">👤</span>
+        <h3>Mon Profil</h3>
+        <p>Modifier vos informations personnelles</p>
+      </div>
+      <div class="card" routerLink="/documents">
+        <span class="icon">📁</span>
+        <h3>Mes Documents</h3>
+        <p>Téléverser vos documents médicaux</p>
+      </div>
+      <div class="card" routerLink="/signalement">
+        <span class="icon">⚠️</span>
+        <h3>Signaler un problème</h3>
+        <p>Signaler un incident ou une insatisfaction</p>
+      </div>
+      <div class="card" routerLink="/consultations">
+        <span class="icon">🩺</span>
+        <h3>Mes Consultations</h3>
+        <p>Historique de vos consultations</p>
+      </div>
+  </main>
+</div>

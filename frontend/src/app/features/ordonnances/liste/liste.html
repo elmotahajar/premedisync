@@ -1,0 +1,21 @@
+<div class="container">
+  <div class="header">
+    <button class="btn-back" (click)="retour()">← Retour</button>
+    <h1>Mes Ordonnances</h1>
+  </div>
+
+  <div class="loading" *ngIf="loading">Chargement...</div>
+
+  <div class="ordonnances-list">
+    <div class="card" *ngFor="let ordonnance of ordonnances">
+      <div class="date">{{ ordonnance.date }}</div>
+      <div class="medecin">{{ ordonnance.medecin }}</div>
+      <div class="medicaments">{{ ordonnance.medicaments }}</div>
+      <button class="btn-pdf" (click)="telechargerPdf(ordonnance.id)">📄 Télécharger PDF</button>
+    </div>
+
+    <div class="empty" *ngIf="!loading && ordonnances.length === 0">
+      Aucune ordonnance trouvée.
+    </div>
+  </div>
+</div>

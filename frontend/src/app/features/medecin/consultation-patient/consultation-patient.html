@@ -1,0 +1,80 @@
+<div class="consultation-container">
+  <div class="header">
+    <button class="btn-back" routerLink="/medecin/planning">← Retour au planning</button>
+    <h1>Consultation médicale</h1>
+  </div>
+
+  <!-- Infos patient -->
+  <div class="patient-info">
+    <h2>{{ patient.prenom }} {{ patient.nom }}</h2>
+    <div class="info-grid">
+      <span>📅 {{ patient.age }} ans</span>
+      <span>📞 {{ patient.telephone }}</span>
+      <span>📧 {{ patient.email }}</span>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="tabs">
+    <button (click)="changerOnglet('dossier')" [class.active]="ongletActif === 'dossier'">
+      📁 Dossier médical
+    </button>
+    <button (click)="changerOnglet('compte-rendu')" [class.active]="ongletActif === 'compte-rendu'">
+      ✏️ Compte rendu
+    </button>
+  </div>
+
+  <!-- Onglet Dossier médical -->
+  <div *ngIf="ongletActif === 'dossier'" class="dossier">
+    <div class="section">
+      <h3>⚠️ Allergies</h3>
+      <ul><li *ngFor="let a of dossier.allergies">{{ a }}</li></ul>
+    </div>
+
+    <div class="section">
+      <h3>📋 Antécédents</h3>
+      <ul><li *ngFor="let ant of dossier.antecedents">{{ ant }}</li></ul>
+    </div>
+
+    <div class="section">
+      <h3>💊 Traitements en cours</h3>
+      <ul><li *ngFor="let t of dossier.traitementsEnCours">{{ t }}</li></ul>
+    </div>
+
+    <div class="section">
+      <h3>📜 Historique</h3>
+      <div *ngFor="let h of dossier.historique" class="historique-item">
+        <strong>{{ h.date }}</strong> - {{ h.motif }}<br>
+        <span class="diagnostic">{{ h.diagnostic }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglet Compte rendu -->
+  <div *ngIf="ongletActif === 'compte-rendu'" class="compte-rendu">
+    <div class="form-group">
+      <label>Symptômes :</label>
+      <textarea [(ngModel)]="compteRendu.symptomes" rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Diagnostic :</label>
+      <input [(ngModel)]="compteRendu.diagnostic" placeholder="Ex: Grippe, Hypertension...">
+    </div>
+
+    <div class="form-group">
+      <label>Traitement prescrit :</label>
+      <textarea [(ngModel)]="compteRendu.traitement" rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Recommandations :</label>
+      <textarea [(ngModel)]="compteRendu.recommandations" rows="2"></textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn-save" (click)="sauvegarderCompteRendu()">💾 Sauvegarder</button>
+      <button class="btn-prescription" (click)="genererPrescription()">💊 Générer prescription</button>
+    </div>
+  </div>
+</div>

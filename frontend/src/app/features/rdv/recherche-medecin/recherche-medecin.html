@@ -1,0 +1,37 @@
+<div class="container">
+  <header class="header">
+    <h1>MediSync</h1>
+    <a routerLink="/dashboard">← Retour</a>
+  </header>
+
+  <main class="main">
+    <h2>Prendre un Rendez-vous</h2>
+
+    <!-- Filtres de recherche -->
+    <div class="filtres">
+      <select [(ngModel)]="specialiteChoisie">
+        <option value="">Toutes les spécialités</option>
+        <option value="Généraliste">Généraliste</option>
+        <option value="Cardiologue">Cardiologue</option>
+        <option value="Dermatologue">Dermatologue</option>
+        <option value="Pédiatre">Pédiatre</option>
+      </select>
+    </div>
+
+    <!-- Liste des médecins -->
+    <div class="medecins">
+      @for (medecin of medecinsFiltres(); track medecin.id) {
+        <div class="card-medecin">
+          <div class="info">
+            <h3>Dr. {{ medecin.nom }}</h3>
+            <p>{{ medecin.specialite }}</p>
+            <p>📍 {{ medecin.ville }}</p>
+          </div>
+          <button (click)="choisirMedecin(medecin)">
+            Prendre RDV
+          </button>
+        </div>
+      }
+    </div>
+  </main>
+</div>

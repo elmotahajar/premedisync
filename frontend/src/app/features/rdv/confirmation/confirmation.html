@@ -1,0 +1,73 @@
+<div class="container">
+  <header class="header">
+    <h1>MediSync</h1>
+    <a routerLink="/rdv">← Retour</a>
+  </header>
+
+  <main class="main">
+    @if (confirme()) {
+      <div class="succes">
+        <p class="icon">✅</p>
+        <h2>Rendez-vous confirmé !</h2>
+        <p>Votre RDV avec <strong>Dr. {{ medecin.nom }}</strong> est confirmé.</p>
+        <p>📅 {{ date }} à {{ heure }}</p>
+        <a routerLink="/dashboard">Retour au dashboard</a>
+      </div>
+    } @else {
+      <h2>Confirmer le Rendez-vous</h2>
+
+      <div class="card">
+        <h3>Dr. {{ medecin?.nom }}</h3>
+        <p>{{ medecin?.specialite }} — {{ medecin?.ville }}</p>
+      </div>
+
+      <div class="form">
+        <div class="form-group">
+          <label>Motif de consultation</label>
+          <select [(ngModel)]="motif">
+            <option value="">-- Choisir --</option>
+            <option value="Consultation générale">Consultation générale</option>
+            <option value="Suivi">Suivi</option>
+            <option value="Urgence">Urgence</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" [(ngModel)]="date" />
+        </div>
+
+        <div class="form-group">
+          <label>Créneau horaire</label>
+          <div class="creneaux">
+            @for (c of creneaux; track c) {
+              <button 
+                [class.actif]="heure === c"
+                (click)="heure = c">
+                {{ c }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input type="checkbox" [(ngModel)]="pourTiers" />
+            Pour un tiers (enfant, personne dépendante)
+          </label>
+        </div>
+
+        @if (pourTiers) {
+          <div class="form-group">
+            <label>Nom du tiers</label>
+            <input type="text" [(ngModel)]="nomTiers" placeholder="Nom complet" />
+          </div>
+        }
+
+        <button class="btn-confirmer" (click)="confirmerRdv()">
+          Confirmer le RDV
+        </button>
+      </div>
+    }
+  </main>
+</div>

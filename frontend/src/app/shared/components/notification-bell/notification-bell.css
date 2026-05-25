@@ -1,0 +1,60 @@
+.notification-container {
+  position: relative;
+}
+
+.bell-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #dc2626;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 280px;
+  z-index: 100;
+  padding: 15px;
+}
+
+.dropdown h4 {
+  color: #374151;
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.vide {
+  color: #9ca3af;
+  font-size: 13px;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.notif-item {
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #f0f4f8;
+  color: #374151;
+  font-size: 13px;
+  margin-bottom: 8px;
+}

@@ -1,0 +1,56 @@
+<div class="container">
+  <div class="header">
+    <button class="btn-back" (click)="retour()">← Retour</button>
+    <h1>Gestion des Salles</h1>
+    <button class="btn-add" (click)="ajouter()">+ Nouvelle salle</button>
+  </div>
+
+  <div class="message" *ngIf="message">{{ message }}</div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nom</th><th>Type</th><th>Capacité</th><th>Équipements</th><th>Statut</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let s of salles">
+        <td>{{ s.nom }}</td>
+        <td>{{ s.type }}</td>
+        <td>{{ s.capacite }} personne(s)</td>
+        <td>{{ s.equipements }}</td>
+        <td><span class="badge" [class.active]="s.disponible" [class.inactive]="!s.disponible">{{ s.disponible ? 'Disponible' : 'Indisponible' }}</span></td>
+        <td class="actions">
+          <button class="edit" (click)="modifier(s)">✏️</button>
+          <button class="toggle" (click)="toggleDisponible(s)">{{ s.disponible ? '🔴' : '🟢' }}</button>
+          <button class="delete" (click)="supprimer(s.id)">🗑️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- MODAL -->
+  <div class="modal" *ngIf="showModal" (click)="fermerModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editMode ? 'Modifier' : 'Ajouter' }} une salle</h3>
+        <button class="close" (click)="fermerModal()">✖</button>
+      </div>
+      <div class="modal-body">
+        <input placeholder="Nom de la salle" [(ngModel)]="currentSalle.nom">
+        
+        <select [(ngModel)]="currentSalle.type">
+          <option value="">Sélectionner le type</option>
+          <option *ngFor="let t of typesSalle" [value]="t">{{ t }}</option>
+        </select>
+        
+        <input placeholder="Capacité (nombre de personnes)" type="number" [(ngModel)]="currentSalle.capacite">
+        <input placeholder="Équipements" [(ngModel)]="currentSalle.equipements">
+      </div>
+      <div class="modal-footer">
+        <button class="cancel" (click)="fermerModal()">Annuler</button>
+        <button class="save" (click)="sauvegarder()">Sauvegarder</button>
+      </div>
+    </div>
+  </div>
+</div>

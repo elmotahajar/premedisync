@@ -1,0 +1,42 @@
+<div class="consultations-container">
+  <div class="top-bar">
+    <button class="btn-retour" (click)="retour()">← Retour</button>
+    <h2>Historique des Consultations</h2>
+  </div>
+
+  <div class="consultations-list">
+    <div *ngIf="consultations.length === 0" class="empty">
+      Aucune consultation pour le moment.
+    </div>
+
+    <div class="consultation-card" *ngFor="let consultation of consultations">
+      <div class="card-header" (click)="voirDetails(consultation)">
+        <div class="date-badge">
+          <span class="jour">{{ consultation.date.split('-')[2] }}</span>
+          <span class="mois">{{ getMois(consultation.date) }}</span>
+        </div>
+        <div class="card-info">
+          <div class="medecin">{{ consultation.medecin }}</div>
+          <div class="specialite">{{ consultation.specialite }}</div>
+          <div class="motif">{{ consultation.motif }}</div>
+        </div>
+        <div class="expand-icon">
+          {{ consultationSelectionnee === consultation ? '▲' : '▼' }}
+        </div>
+      </div>
+
+      <div class="card-details" *ngIf="consultationSelectionnee === consultation">
+        <div class="detail-section">
+          <h4>📝 Compte rendu médical</h4>
+          <p>{{ consultation.compteRendu }}</p>
+        </div>
+        <div class="detail-section" *ngIf="consultation.ordonnanceUrl">
+          <h4>💊 Ordonnance</h4>
+          <button class="btn-ordonnance" (click)="telechargerOrdonnance(consultation)">
+            📄 Télécharger l'ordonnance (PDF)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

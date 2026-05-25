@@ -1,0 +1,20 @@
+<div class="container">
+  <div class="header">
+    <button class="btn-back" (click)="retour()">← Retour</button>
+    <h1>Historique des consultations</h1>
+  </div>
+
+  <div class="loading" *ngIf="loading">Chargement...</div>
+
+  <div class="historique-list">
+    <div class="card" *ngFor="let consultation of historique" (click)="voirDetails(consultation.id)">
+      <div class="date">{{ consultation.date }}</div>
+      <div class="medecin">{{ consultation.medecin }}</div>
+      <div class="motif">{{ consultation.motif }}</div>
+    </div>
+
+    <div class="empty" *ngIf="!loading && historique.length === 0">
+      Aucune consultation trouvée.
+    </div>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+<div class="signalement-container">
+  <div class="top-bar">
+    <button class="btn-retour" (click)="retour()">← Retour</button>
+    <h2>Signaler un problème</h2>
+  </div>
+
+  <div class="form-card">
+    <p class="info-text">
+      Vous rencontrez un problème ? Décrivez-le nous, nous reviendrons vers vous rapidement.
+    </p>
+
+    <div class="success" *ngIf="messageSucces">✅ {{ messageSucces }}</div>
+    <div class="error" *ngIf="messageErreur">❌ {{ messageErreur }}</div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Type de problème *</label>
+        <select [(ngModel)]="signalement.type" name="type" required>
+          <option value="">Sélectionnez un type</option>
+          <option *ngFor="let type of typesSignalement" [value]="type">{{ type }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Niveau d'urgence</label>
+        <div class="radio-group">
+          <label>
+            <input type="radio" [(ngModel)]="signalement.urgence" name="urgence" value="faible">
+            Faible (peut attendre)
+          </label>
+          <label>
+            <input type="radio" [(ngModel)]="signalement.urgence" name="urgence" value="normale">
+            Normale
+          </label>
+          <label>
+            <input type="radio" [(ngModel)]="signalement.urgence" name="urgence" value="urgent">
+            Urgent
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Description détaillée *</label>
+        <textarea 
+          [(ngModel)]="signalement.description" 
+          name="description" 
+          rows="5" 
+          placeholder="Décrivez précisément votre problème..."
+          required></textarea>
+        <small>Minimum 10 caractères</small>
+      </div>
+
+      <button type="submit" class="btn-submit">Envoyer le signalement</button>
+    </form>
+  </div>
+</div>

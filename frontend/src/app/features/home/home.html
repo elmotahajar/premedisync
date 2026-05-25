@@ -1,0 +1,40 @@
+<div class="home">
+  <div class="container">
+    <h1>MediSync</h1>
+    <p class="subtitle">Système de Gestion de Clinique Médicale</p>
+
+    <div class="cards">
+      <!-- Espace Patient -->
+      <div class="card" (click)="goTo('patient')">
+        <div class="icon">👤</div>
+        <h2>Espace Patient</h2>
+        <p>Prendre rendez-vous<br>Consulter votre dossier médical<br>Télécharger vos ordonnances</p>
+      </div>
+
+      <!-- Espace Médecin -->
+      <div class="card" (click)="goTo('medecin')">
+        <div class="icon">👨‍⚕️</div>
+        <h2>Espace Médecin</h2>
+        <p>Gérer votre planning<br>Consulter dossiers patients<br>Prescriptions électroniques</p>
+      </div>
+
+      <!-- Espace Secrétaire -->
+      <div class="card" (click)="goTo('secretaire')">
+        <div class="icon">📋</div>
+        <h2>Espace Secrétaire</h2>
+        <p>Gestion des rendez-vous<br>Création comptes patients<br>Facturation</p>
+      </div>
+
+      <!-- Espace Administrateur -->
+      <div class="card" (click)="goTo('admin')">
+        <div class="icon">⚙️</div>
+        <h2>Espace Administrateur</h2>
+        <p>Gérer l'établissement<br>Gérer les médecins et secrétaires<br>Gérer les salles et facturation</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>©️ 2026 MediSync - Tous droits réservés</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+<div class="notif-page">
+  <h2>🔔 Mes Notifications</h2>
+
+  <div *ngIf="notifications.length === 0" class="empty">
+    Aucune notification pour le moment.
+  </div>
+
+  <div
+    *ngFor="let n of notifications"
+    class="notif-card"
+    [class.unread]="!n.read"
+    (click)="markRead(n)">
+    <div class="notif-icon">
+      {{ n.type === 'success' ? '✅' : n.type === 'warning' ? '⚠️' : 'ℹ️' }}
+    </div>
+    <div class="notif-content">
+      <p>{{ n.message }}</p>
+      <small>{{ n.createdAt | date:'dd/MM/yyyy à HH:mm' }}</small>
+    </div>
+    <span class="dot" *ngIf="!n.read"></span>
+  </div>
+</div>

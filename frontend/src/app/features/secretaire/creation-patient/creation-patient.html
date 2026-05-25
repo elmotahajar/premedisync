@@ -1,0 +1,74 @@
+<div class="container">
+  <header class="header">
+    <h1>MediSync</h1>
+    <a routerLink="/secretaire">← Retour</a>
+  </header>
+
+  <main class="main">
+    <div class="titre-action">
+      <h2>Création de Patients</h2>
+      <button class="btn-ajouter" (click)="afficherFormulaire.set(!afficherFormulaire())">
+        + Nouveau Patient
+      </button>
+    </div>
+
+    @if (messageSucces()) {
+      <div class="message-succes">{{ messageSucces() }}</div>
+    }
+
+    @if (afficherFormulaire()) {
+      <div class="formulaire">
+        <h3>Nouveau Patient</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nom</label>
+            <input type="text" [(ngModel)]="nouveauPatient.nom" placeholder="Nom de famille" />
+          </div>
+          <div class="form-group">
+            <label>Prénom</label>
+            <input type="text" [(ngModel)]="nouveauPatient.prenom" placeholder="Prénom" />
+          </div>
+          <div class="form-group">
+            <label>Date de naissance</label>
+            <input type="date" [(ngModel)]="nouveauPatient.dateNaissance" />
+          </div>
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input type="tel" [(ngModel)]="nouveauPatient.telephone" placeholder="06XXXXXXXX" />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="nouveauPatient.email" placeholder="email@exemple.com" />
+          </div>
+          <div class="form-group">
+            <label>Adresse</label>
+            <input type="text" [(ngModel)]="nouveauPatient.adresse" placeholder="Ville, adresse" />
+          </div>
+          <div class="form-group">
+            <label>N° Sécurité Sociale</label>
+            <input type="text" [(ngModel)]="nouveauPatient.numeroSecurite" placeholder="15 chiffres" />
+          </div>
+        </div>
+        <button class="btn-confirmer" (click)="ajouterPatient()">Créer le compte</button>
+      </div>
+    }
+
+    <div class="liste">
+      @for (patient of patients(); track patient.id) {
+        <div class="card">
+          <div class="avatar">{{ patient.prenom[0] }}{{ patient.nom[0] }}</div>
+          <div class="info">
+            <h3>{{ patient.prenom }} {{ patient.nom }}</h3>
+            <p>📞 {{ patient.telephone }}</p>
+            <p>✉️ {{ patient.email }}</p>
+            <p>📍 {{ patient.adresse }}</p>
+          </div>
+          <div class="meta">
+            <p>🎂 {{ patient.dateNaissance }}</p>
+            <p class="num-secu">🔒 {{ patient.numeroSecurite }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </main>
+</div>

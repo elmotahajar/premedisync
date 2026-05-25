@@ -1,0 +1,52 @@
+<div class="container">
+  <header class="header">
+    <h1>MediSync</h1>
+    <a routerLink="/dossier">← Retour</a>
+  </header>
+
+  <main class="main">
+    @if (consultation()) {
+      <h2>Détail de la Consultation</h2>
+
+      <div class="card-info">
+        <div class="ligne">
+          <span class="label">Médecin</span>
+          <span>{{ consultation()!.medecin }}</span>
+        </div>
+        <div class="ligne">
+          <span class="label">Spécialité</span>
+          <span>{{ consultation()!.specialite }}</span>
+        </div>
+        <div class="ligne">
+          <span class="label">Date</span>
+          <span>🗓️ {{ consultation()!.date }}</span>
+        </div>
+        <div class="ligne">
+          <span class="label">Motif</span>
+          <span>{{ consultation()!.motif }}</span>
+        </div>
+        <div class="ligne">
+          <span class="label">Diagnostic</span>
+          <span>{{ consultation()!.diagnostic }}</span>
+        </div>
+      </div>
+
+      <div class="card-compte-rendu">
+        <h3>📋 Compte-rendu</h3>
+        <p>{{ consultation()!.compteRendu }}</p>
+      </div>
+
+      <div class="card-medicaments">
+        <h3>💊 Médicaments prescrits</h3>
+        <ul>
+          @for (med of consultation()!.medicaments; track med) {
+            <li>{{ med }}</li>
+          }
+        </ul>
+      </div>
+
+    } @else {
+      <p class="introuvable">Consultation introuvable.</p>
+    }
+  </main>
+</div>

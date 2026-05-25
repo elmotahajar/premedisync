@@ -1,0 +1,26 @@
+<div class="rdv-container">
+  <div class="top-bar">
+    <button class="btn-retour" (click)="retour()">← Retour</button>
+    <h2>Mes Rendez-vous</h2>
+  </div>
+
+  <div class="message" *ngIf="message">{{ message }}</div>
+  <div class="loading" *ngIf="loading">Chargement...</div>
+
+  <div class="rdv-list">
+    <div class="rdv-card" *ngFor="let rdv of rendezVous">
+      <div class="rdv-info">
+        <div class="date">{{ rdv.date }} à {{ rdv.heure }}</div>
+        <div class="medecin">{{ rdv.medecin }}</div>
+        <div class="motif">{{ rdv.motif }}</div>
+      </div>
+      <div class="rdv-actions">
+        <button class="btn-annuler" (click)="annulerRdv(rdv.id)">Annuler</button>
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="!loading && rendezVous.length === 0">
+      Aucun rendez-vous programmé.
+    </div>
+  </div>
+</div>

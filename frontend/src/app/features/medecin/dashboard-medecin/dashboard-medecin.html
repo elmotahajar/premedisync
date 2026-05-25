@@ -1,0 +1,54 @@
+<div class="dashboard">
+  <!-- En-tête -->
+  <header class="header">
+    <h1>MediSync</h1>
+    <div class="medecin-info">
+      <span>Dr. {{ medecin.nom }} — {{ medecin.specialite }}</span>
+      <button (click)="logout()">Se déconnecter</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <h2>Espace Médecin</h2>
+
+    <!-- Menu des cartes -->
+    <div class="cards">
+      <div class="card" routerLink="/medecin/planning">
+        <span class="icon">📅</span>
+        <h3>Planning</h3>
+        <p>Voir votre planning journalier, hebdomadaire et mensuel</p>
+      </div>
+
+      <div class="card" routerLink="/medecin/prescription">
+        <span class="icon">💊</span>
+        <h3>Prescriptions</h3>
+        <p>Générer des prescriptions électroniques</p>
+      </div>
+
+      <div class="card" routerLink="/medecin/disponibilites">
+        <span class="icon">🕒</span>
+        <h3>Disponibilités</h3>
+        <p>Gérer vos disponibilités et congés</p>
+      </div>
+
+      <div class="card" routerLink="/medecin/consultation/1">
+        <span class="icon">📋</span>
+        <h3>Compte Rendu</h3>
+        <p>Rédiger les comptes rendus médicaux</p>
+      </div>
+    </div>
+
+    <!-- Planning du jour rapide -->
+    <div class="planning-rapide">
+      <h3>📅 Planning du jour</h3>
+      <div class="rdv-list">
+        <div class="rdv-item" *ngFor="let rdv of rendezVousAujourdhui">
+          <span class="heure">{{ rdv.dateHeure | date:'HH:mm' }}</span>
+          <span class="patient">{{ rdv.motif }}</span>
+          <button (click)="consulter(rdv.id)">Consulter</button>
+        </div>
+        <p *ngIf="rendezVousAujourdhui.length === 0">Aucun rendez-vous aujourd'hui.</p>
+      </div>
+    </div>
+  </main>
+</div>

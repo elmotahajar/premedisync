@@ -1,0 +1,79 @@
+<div class="container">
+  <header class="header">
+    <h1>MediSync</h1>
+    <a routerLink="/secretaire">← Retour</a>
+  </header>
+
+  <main class="main">
+    <div class="titre-action">
+      <h2>Gestion des Rendez-vous</h2>
+      <button class="btn-ajouter" (click)="afficherFormulaire.set(!afficherFormulaire())">
+        {{ afficherFormulaire() ? 'Fermer' : '+ Nouveau RDV' }}
+      </button>
+    </div>
+
+    @if (messageSucces()) {
+      <div class="message-succes">{{ messageSucces() }}</div>
+    }
+
+    @if (afficherFormulaire()) {
+      <div class="formulaire">
+        <h3>{{ modeEdition() ? 'Modifier le Rendez-vous' : 'Nouveau Rendez-vous' }}</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Patient</label>
+            <input type="text" [(ngModel)]="nouveauRdv.patient" placeholder="Nom du patient" />
+          </div>
+          <div class="form-group">
+            <label>Médecin</label>
+            <input type="text" [(ngModel)]="nouveauRdv.medecin" placeholder="Dr. Nom" />
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" [(ngModel)]="nouveauRdv.date" />
+          </div>
+          <div class="form-group">
+            <label>Heure</label>
+            <input type="time" [(ngModel)]="nouveauRdv.heure" />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-confirmer" (click)="ajouterOuModifierRdv()">
+            {{ modeEdition() ? 'Enregistrer les modifications' : 'Confirmer le RDV' }}
+          </button>
+          @if (modeEdition()) {
+            <button class="btn-annuler-edition" (click)="reinitialiserFormulaire()">Annuler</button>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="liste">
+      @for (rdv of rdvs(); track rdv.id) {
+        <div class="card" [class]="'statut-' + rdv.statut">
+          <div class="card-header">
+            <div>
+              <h3>{{ rdv.patient }}</h3>
+              <p class="medecin">{{ rdv.medecin }}</p>
+            </div>
+            <span class="badge" [class]="'badge-' + rdv.statut">{{ rdv.statut }}</span>
+          </div>
+          <div class="card-body">
+            <p class="datetime">📅 {{ rdv.date }} à 🕒 {{ rdv.heure }}</p>
+          </div>
+          <div class="card-footer">
+            <div class="actions">
+              @if (rdv.statut !== 'confirmé') {
+                <button class="btn-payer" (click)="confirmerRdv(rdv.id)">✅ Confirmer</button>
+              }
+              @if (rdv.statut !== 'annulé') {
+                <button class="btn-edit" (click)="chargerRdvPourEdition(rdv)">✏️ Modifier</button>
+                <button class="btn-annuler" (click)="annulerRdv(rdv.id)">❌ Annuler</button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </main>
+</div>

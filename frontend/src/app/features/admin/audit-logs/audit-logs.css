@@ -1,0 +1,125 @@
+.container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.btn-back {
+  padding: 8px 16px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+h1 {
+  color: #1a237e;
+  margin: 0;
+}
+
+/* FILTRES */
+.filtres {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 25px;
+  background: white;
+  padding: 15px 20px;
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+
+.filtre-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filtre-group label {
+  font-weight: 600;
+  color: #333;
+}
+
+.filtre-group select, .filtre-group input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.filtre-group input {
+  width: 200px;
+}
+
+/* TABLE */
+.table {
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  overflow-x: auto;
+  display: block;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.table th {
+  background: #f8f9ff;
+  color: #1a237e;
+  font-weight: 600;
+}
+
+.empty {
+  text-align: center;
+  color: #999;
+  padding: 40px;
+}
+
+/* BADGES */
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.badge.admin {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.badge.medecin {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badge.secretaire {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+/* STATS */
+.stats {
+  margin-top: 20px;
+  display: flex;
+  gap: 20px;
+  justify-content: flex-end;
+}
+
+.stat {
+  background: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #666;
+}

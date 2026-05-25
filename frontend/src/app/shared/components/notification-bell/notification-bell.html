@@ -1,0 +1,20 @@
+<div class="notification-container">
+  <button class="bell-btn" (click)="toggleOuvert()">
+    🔔
+    @if (notifications.length > 0) {
+      <span class="badge">{{ notifications.length }}</span>
+    }
+  </button>
+
+  @if (ouvert) {
+    <div class="dropdown">
+      <h4>Notifications</h4>
+      @if (notifications.length === 0) {
+        <p class="vide">Aucune notification</p>
+      }
+      @for (notif of notifications; track notif) {
+        <div class="notif-item">{{ notif }}</div>
+      }
+    </div>
+  }
+</div>

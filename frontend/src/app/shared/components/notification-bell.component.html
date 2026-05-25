@@ -1,0 +1,21 @@
+<div class="bell-wrapper">
+  <button class="bell-btn" (click)="toggle()">
+    🔔
+    <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+  </button>
+
+  <div class="panel" *ngIf="isOpen">
+    <h4>Notifications</h4>
+    <div
+      *ngFor="let n of notifications"
+      class="notif-item"
+      [class.unread]="!n.read"
+      (click)="markRead(n)">
+      <p>{{ n.message }}</p>
+      <small>{{ n.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+    </div>
+    <p class="empty" *ngIf="notifications.length === 0">
+      Aucune notification
+    </p>
+  </div>
+</div>

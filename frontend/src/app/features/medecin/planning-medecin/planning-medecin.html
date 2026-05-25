@@ -1,0 +1,81 @@
+<div class="planning-container">
+  <div class="header">
+    <button class="btn-back" routerLink="/medecin/dashboard">← Retour</button>
+    <h1>📅 Mon Planning</h1>
+  </div>
+
+  <!-- Boutons vues -->
+  <div class="vues">
+    <button [class.actif]="vue === 'jour'" (click)="vue = 'jour'">Journalier</button>
+    <button [class.actif]="vue === 'semaine'" (click)="vue = 'semaine'">Hebdomadaire</button>
+    <button [class.actif]="vue === 'mois'" (click)="vue = 'mois'">Mensuel</button>
+  </div>
+
+  <!-- Vue Journalière -->
+  @if (vue === 'jour') {
+    <div class="date-controls">
+      <button class="btn-nav" (click)="jourPrecedent()">◀ Jour précédent</button>
+      <span class="date">{{ formaterDate() }}</span>
+      <button class="btn-nav" (click)="jourSuivant()">Jour suivant ▶</button>
+    </div>
+
+    <div class="rdv-list">
+      <div class="rdv-header">
+        <span>Heure</span>
+        <span>Patient</span>
+        <span>Motif</span>
+        <span>Action</span>
+      </div>
+      @for (rdv of rendezVous; track rdv.id) {
+        <div class="rdv-item" [class.urgence]="rdv.motif === 'Urgence'">
+          <span class="heure">{{ rdv.heure }}</span>
+          <span class="patient">{{ rdv.patient }}</span>
+          <span class="motif">{{ rdv.motif }}</span>
+          <button class="btn-consulter" [routerLink]="['/medecin/consultation', rdv.id]">Consulter</button>
+        </div>
+      }
+      @if (rendezVous.length === 0) {
+        <div class="empty">Aucun rendez-vous pour aujourd'hui</div>
+      }
+    </div>
+  }
+
+  <!-- Vue Hebdomadaire -->
+  @if (vue === 'semaine') {
+    <div class="semaine">
+      @for (jour of semaine; track jour.nom) {
+        <div class="jour-semaine">
+          <h3>{{ jour.nom }}</h3>
+          @for (rdv of jour.rdvs; track rdv.heure) {
+            <div class="rdv-mini" [class.urgence]="rdv.motif === 'Urgence'">
+              <span>{{ rdv.heure }}</span>
+              <span>{{ rdv.patient }}</span>
+            </div>
+          }
+          @if (jour.rdvs.length === 0) {
+            <p class="vide">Libre</p>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Vue Mensuelle -->
+  @if (vue === 'mois') {
+    <div class="mois">
+      @for (semaine of mois; track $index) {
+        <div class="semaine-mois">
+          @for (jour of semaine; track $index) {
+            <div class="case-mois" [class.has-rdv]="jour.nbRdv > 0">
+              <span class="num-jour">{{ jour.num }}</span>
+              @if (jour.nbRdv > 0) {
+                <span class="badge">{{ jour.nbRdv }} RDV</span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+</div>

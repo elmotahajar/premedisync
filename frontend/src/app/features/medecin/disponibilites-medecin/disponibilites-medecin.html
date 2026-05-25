@@ -1,0 +1,95 @@
+<div class="disponibilites-container">
+  <div class="header">
+    <button class="btn-back" routerLink="/medecin/dashboard">← Retour</button>
+    <h1>🕒 Gérer mes disponibilités</h1>
+  </div>
+
+  <div class="content">
+    <!-- Durée des consultations -->
+    <div class="card">
+      <h3>⏱️ Durée des consultations</h3>
+      <div class="duree-options">
+        <label>
+          <input type="radio" [(ngModel)]="dureeConsultation" [value]="15">
+          15 minutes
+        </label>
+        <label>
+          <input type="radio" [(ngModel)]="dureeConsultation" [value]="30">
+          30 minutes
+        </label>
+        <label>
+          <input type="radio" [(ngModel)]="dureeConsultation" [value]="60">
+          60 minutes
+        </label>
+      </div>
+    </div>
+
+    <!-- Horaires par jour -->
+    <div class="card">
+      <h3>📅 Horaires hebdomadaires</h3>
+      
+      <div *ngFor="let jour of joursSemaine" class="jour-item">
+        <div class="jour-header">
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="jour.actif">
+            <span class="slider"></span>
+          </label>
+          <span class="jour-nom">{{ jour.nom }}</span>
+        </div>
+
+        <div class="jour-horaires" *ngIf="jour.actif">
+          <div class="horaire">
+            <label>Début :</label>
+            <input type="time" [(ngModel)]="jour.debut">
+          </div>
+          <div class="horaire">
+            <label>Fin :</label>
+            <input type="time" [(ngModel)]="jour.fin">
+          </div>
+          <div class="horaire pause">
+            <label>
+              <input type="checkbox" [(ngModel)]="jour.pause">
+              Pause déjeuner
+            </label>
+          </div>
+          <div class="horaire" *ngIf="jour.pause">
+            <label>De :</label>
+            <input type="time" [(ngModel)]="jour.pauseDebut">
+            <label>À :</label>
+            <input type="time" [(ngModel)]="jour.pauseFin">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Congés spéciaux -->
+    <div class="card">
+      <h3>🏖️ Congés et indisponibilités</h3>
+      
+      <div class="ajout-conge">
+        <input type="date" [(ngModel)]="nouveauConge.dateDebut" placeholder="Date début">
+        <input type="date" [(ngModel)]="nouveauConge.dateFin" placeholder="Date fin">
+        <input type="text" [(ngModel)]="nouveauConge.motif" placeholder="Motif (congés, formation, ...)">
+        <button (click)="ajouterConge()">➕ Ajouter</button>
+      </div>
+
+      <div class="liste-conges" *ngIf="congesSpeciaux.length > 0">
+        <div *ngFor="let conge of congesSpeciaux; let i = index" class="conge-item">
+          <span>📅 {{ conge.dateDebut }} → {{ conge.dateFin }}</span>
+          <span>{{ conge.motif }}</span>
+          <button (click)="supprimerConge(i)">❌</button>
+        </div>
+      </div>
+      <div class="vide" *ngIf="congesSpeciaux.length === 0">
+        Aucun congé programmé
+      </div>
+    </div>
+
+    <!-- Bouton sauvegarder -->
+    <div class="actions">
+      <button class="btn-save" (click)="sauvegarderDisponibilites()">
+        💾 Sauvegarder toutes les disponibilités
+      </button>
+    </div>
+  </div>
+</div>

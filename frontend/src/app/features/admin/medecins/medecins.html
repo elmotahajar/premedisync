@@ -1,0 +1,63 @@
+<div class="container">
+  <div class="header">
+    <button class="btn-back" (click)="retour()">← Retour</button>
+    <h1>Gestion des Médecins</h1>
+    <button class="btn-add" (click)="ajouter()">+ Nouveau médecin</button>
+  </div>
+
+  <div class="message" *ngIf="message">{{ message }}</div>
+
+  <!-- Mot de passe temporaire -->
+  <div class="temp-password" *ngIf="tempPassword">
+    <span>✅ Médecin ajouté ! Mot de passe temporaire : <strong>{{ tempPassword }}</strong> — Communiquez-le au médecin !</span>
+    <button (click)="tempPassword = ''">✕</button>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nom</th><th>Prénom</th><th>Spécialité</th><th>Email</th><th>Tarif</th><th>Statut</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of medecins">
+        <td>{{ m.nom }}</td>
+        <td>{{ m.prenom }}</td>
+        <td>{{ m.specialite }}</td>
+        <td>{{ m.email }}</td>
+        <td>{{ m.tarif }} €</td>
+        <td><span class="badge" [class.active]="m.actif" [class.inactive]="!m.actif">{{ m.actif ? 'Actif' : 'Inactif' }}</span></td>
+        <td class="actions">
+          <button class="edit" (click)="modifier(m)">✏️</button>
+          <button class="toggle" (click)="toggleActif(m)">{{ m.actif ? '🔴' : '🟢' }}</button>
+          <button class="delete" (click)="supprimer(m.id)">🗑️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- MODAL -->
+  <div class="modal" *ngIf="showModal" (click)="fermerModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editMode ? 'Modifier' : 'Ajouter' }} un médecin</h3>
+        <button class="close" (click)="fermerModal()">✖</button>
+      </div>
+      <div class="modal-body">
+        <input placeholder="Nom" [(ngModel)]="currentMedecin.nom">
+        <input placeholder="Prénom" [(ngModel)]="currentMedecin.prenom">
+        <select [(ngModel)]="currentMedecin.specialite">
+          <option value="">Sélectionner spécialité</option>
+          <option *ngFor="let s of specialites" [value]="s">{{ s }}</option>
+        </select>
+        <input placeholder="Email" type="email" [(ngModel)]="currentMedecin.email">
+        <input placeholder="Téléphone" [(ngModel)]="currentMedecin.telephone">
+        <input placeholder="Tarif (€)" type="number" [(ngModel)]="currentMedecin.tarif">
+      </div>
+      <div class="modal-footer">
+        <button class="cancel" (click)="fermerModal()">Annuler</button>
+        <button class="save" (click)="sauvegarder()">Sauvegarder</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,101 @@
+<div class="container">
+  <header class="header">
+    <h1>MediSync</h1>
+    <a routerLink="/secretaire">← Retour</a>
+  </header>
+
+  <main class="main">
+    <div class="titre-action">
+      <h2>Feuilles de Soins</h2>
+      <button class="btn-ajouter" (click)="afficherFormulaire.set(!afficherFormulaire())">
+        + Nouvelle Feuille
+      </button>
+    </div>
+
+    @if (messageSucces()) {
+      <div class="message-succes">{{ messageSucces() }}</div>
+    }
+
+    @if (afficherFormulaire()) {
+      <div class="formulaire">
+        <h3>Nouvelle Feuille de Soins</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Patient</label>
+            <input type="text" [(ngModel)]="nouvelleFeuille.patient" placeholder="Nom du patient" />
+          </div>
+          <div class="form-group">
+            <label>Médecin</label>
+            <select [(ngModel)]="nouvelleFeuille.medecin">
+              <option value="">-- Choisir --</option>
+              <option value="Dr. Alaoui">Dr. Alaoui</option>
+              <option value="Dr. Benali">Dr. Benali</option>
+              <option value="Dr. Idrissi">Dr. Idrissi</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" [(ngModel)]="nouvelleFeuille.date" />
+          </div>
+          <div class="form-group">
+            <label>Mutuelle</label>
+            <select [(ngModel)]="nouvelleFeuille.mutuelle">
+              <option value="">-- Choisir --</option>
+              <option value="CNSS">CNSS</option>
+              <option value="CNOPS">CNOPS</option>
+              <option value="FAR">FAR</option>
+              <option value="Aucune">Aucune</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Code Acte</label>
+            <select [(ngModel)]="nouvelleFeuille.codeActe">
+              <option value="">-- Choisir --</option>
+              <option value="C">C — Consultation générale</option>
+              <option value="CS">CS — Consultation spécialisée</option>
+              <option value="B">B — Biologie</option>
+              <option value="Z">Z — Radiologie</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Description Acte</label>
+            <input type="text" [(ngModel)]="nouvelleFeuille.descriptionActe" placeholder="Ex: Prise de sang" />
+          </div>
+          <div class="form-group">
+            <label>Montant (MAD)</label>
+            <input type="number" [(ngModel)]="nouvelleFeuille.montantActe" placeholder="000" />
+          </div>
+        </div>
+        <button class="btn-confirmer" (click)="ajouterFeuille()">Créer la feuille</button>
+      </div>
+    }
+
+    <div class="liste">
+      @for (feuille of feuilles(); track feuille.id) {
+        <div class="card">
+          <div class="info">
+            <h3>{{ feuille.patient }}</h3>
+            <p>👨‍⚕️ {{ feuille.medecin }}</p>
+            <p>🗓️ {{ feuille.date }}</p>
+            <p>🏥 {{ feuille.mutuelle }}</p>
+            <div class="actes">
+              @for (acte of feuille.actes; track acte.code) {
+                <span class="acte-badge">{{ acte.code }} — {{ acte.description }} ({{ acte.montant }} MAD)</span>
+              }
+            </div>
+          </div>
+          <div class="montant-section">
+            <span class="montant">{{ totalActes(feuille.actes) }} MAD</span>
+            <span [class]="'statut ' + feuille.statut">{{ feuille.statut }}</span>
+          </div>
+          <div class="actions">
+            @if (feuille.statut === 'en attente') {
+              <button class="btn-transmettre" (click)="transmettre(feuille.id)">📤 Transmettre</button>
+            }
+            <button class="btn-pdf" (click)="exporterPDF(feuille)">📄 PDF</button>
+          </div>
+        </div>
+      }
+    </div>
+  </main>
+</div>

@@ -1,0 +1,62 @@
+<div class="container">
+  <div class="header">
+    <button class="btn-back" (click)="retour()">← Retour</button>
+    <h1>Facturation</h1>
+  </div>
+
+  <div class="message" *ngIf="message">{{ message }}</div>
+
+  <!-- STATISTIQUES -->
+  <div class="stats">
+    <div class="stat-card">
+      <h3>Total général</h3>
+      <p class="montant">{{ totalGeneral }} €</p>
+    </div>
+    <div class="stat-card payee">
+      <h3>Payé</h3>
+      <p class="montant">{{ totalPaye }} €</p>
+    </div>
+    <div class="stat-card impayee">
+      <h3>Impayé</h3>
+      <p class="montant">{{ totalImpaye }} €</p>
+    </div>
+    <div class="stat-card attente">
+      <h3>En attente</h3>
+      <p class="montant">{{ totalEnAttente }} €</p>
+    </div>
+  </div>
+
+  <!-- FILTRE -->
+  <div class="filtre">
+    <label>Filtrer par statut :</label>
+    <select [(ngModel)]="filtreStatut">
+      <option value="tous">Toutes</option>
+      <option value="payee">Payées</option>
+      <option value="impayee">Impayées</option>
+      <option value="en_attente">En attente</option>
+    </select>
+  </div>
+
+  <!-- TABLEAU DES FACTURES -->
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th><th>Patient</th><th>Date</th><th>Type</th><th>Montant</th><th>Statut</th><th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let f of facturesFiltrees">
+        <td>{{ f.id }}</td>
+        <td>{{ f.patientPrenom }} {{ f.patientNom }}</td>
+        <td>{{ f.date }}</td>
+        <td>{{ f.type }}</td>
+        <td>{{ f.montant }} €</td>
+        <td><span [class]="getStatutClass(f.statut)">{{ getStatutTexte(f.statut) }}</span></td>
+        <td>
+          <button *ngIf="f.statut !== 'payee'" class="btn-payer" (click)="marquerPayee(f)">Marquer payée</button>
+          <span *ngIf="f.statut === 'payee'" class="payee-label">✓</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
