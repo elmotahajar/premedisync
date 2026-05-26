@@ -13,6 +13,7 @@ const {
 router.post('/', auth, createRendezVous);
 router.get('/', auth, getRendezVous);
 router.get('/patient/:id', auth, getRendezVousPatient);
+router.get('/medecin/:id', auth, require('../controllers/rendezVousController').getRendezVousMedecin);
 router.put('/:id', auth, updateRendezVous);
 router.delete('/:id', auth, cancelRendezVous);
 router.post('/tiers', auth, createRendezVousTiers);

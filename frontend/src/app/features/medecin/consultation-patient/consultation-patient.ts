@@ -14,7 +14,12 @@ export class ConsultationPatient implements OnInit {
   patientId: string | null = null;
   ongletActif: 'dossier' | 'compte-rendu' = 'dossier';
   patient: any = {};
-  dossier: any = { allergies: [], antecedents: [], traitementsEnCours: [], historique: [] };
+  medecin: any = {};
+  dossier: any = { allergies: [], antecedents: [], traitementsEnCours: [], historique: [], documents: [], ordonnances: [] };
+  comptesRendus: any[] = [];
+  prescriptions: any[] = [];
+  chargement = false;
+  messageErreur = '';
   compteRendu = {
     symptomes: '',
     diagnostic: '',
@@ -30,14 +35,23 @@ export class ConsultationPatient implements OnInit {
     this.patientId = this.route.snapshot.paramMap.get('id');
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    this.chargement = true;
 
     // Charger dossier patient
     this.http.get(`${this.apiUrl}/medecin/compte-rendu/${this.patientId}`, { headers }).subscribe({
       next: (data: any) => {
         this.patient = data.patient || {};
+        this.medecin = data.medecin || {};
         this.dossier = data.dossier || this.dossier;
+        this.comptesRendus = Array.isArray(data.comptesRendus) ? data.comptesRendus : [];
+        this.prescriptions = Array.isArray(data.prescriptions) ? data.prescriptions : [];
+        this.chargement = false;
       },
-      error: (err) => console.error('Erreur dossier:', err)
+      error: (err) => {
+        this.messageErreur = err.error?.message || 'Erreur chargement dossier patient';
+        this.chargement = false;
+        console.error('Erreur dossier:', err);
+      }
     });
   }
 
@@ -50,7 +64,7 @@ export class ConsultationPatient implements OnInit {
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
     this.http.post(`${this.apiUrl}/medecin/compte-rendu`, {
-      patientId: this.patientId,
+      patientId: Number(this.patientId),
       ...this.compteRendu
     }, { headers }).subscribe({
       next: () => alert('Compte rendu sauvegardé avec succès !'),
@@ -60,5 +74,17 @@ export class ConsultationPatient implements OnInit {
 
   genererPrescription() {
     window.location.href = '/medecin/prescription';
+  }
+
+  formatDate(value: string | Date): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return String(value || '');
+    }
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
   }
 }

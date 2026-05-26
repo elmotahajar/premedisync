@@ -194,6 +194,49 @@ exports.getRendezVousPatient = async (req, res) => {
   }
 };
 
+// Obtenir les rendez-vous d'un médecin spécifique
+exports.getRendezVousMedecin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date } = req.query;
+
+    const whereClause = { medecinId: id };
+    if (date) {
+      whereClause.dateHeure = {
+        [Op.between]: [`${date} 00:00:00`, `${date} 23:59:59`]
+      };
+    }
+
+    const rdvs = await RendezVous.findAll({
+      where: whereClause,
+      order: [['dateHeure', 'ASC']]
+    });
+
+    const formattedList = [];
+    for (const r of rdvs) {
+      const { date: dateOnly, heure } = normalizeDateHeure(r.dateHeure);
+      const patientUser = await User.findByPk(r.patientId);
+      formattedList.push({
+        id: r.id,
+        patientId: r.patientId,
+        medecinId: r.medecinId,
+        date: dateOnly,
+        heure,
+        dateHeure: r.dateHeure,
+        patientNom: patientUser ? `${patientUser.prenom} ${patientUser.nom}` : `Patient #${r.patientId}`,
+        motif: r.motif,
+        statut: r.statut,
+        duree: r.duree
+      });
+    }
+
+    res.json(formattedList);
+  } catch (error) {
+    console.error('Erreur getRendezVousMedecin:', error);
+    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+  }
+};
+
 // Modifier un rendez-vous
 exports.updateRendezVous = async (req, res) => {
   try {

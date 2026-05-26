@@ -28,6 +28,7 @@ router.delete('/conge/:id',    auth, medecinController.supprimerConge);
 // PATIENTS DU JOUR
 // ─────────────────────────────────────────
 router.get('/patients-jour',   auth, medecinController.getPatientsJour);
+router.get('/:id/patients',    auth, medecinController.getPatientsMedecin);
 
 // ─────────────────────────────────────────
 // COMPTES RENDUS

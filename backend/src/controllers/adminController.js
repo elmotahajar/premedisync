@@ -2,6 +2,8 @@ const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Patient = require('../models/Patient');
+const Medecin = require('../models/Medecin');
+const Secretaire = require('../models/Secretaire');
 const RendezVous = require('../models/RendezVous');
 const Facture = require('../models/Facture');
 
@@ -246,6 +248,28 @@ exports.creerPersonnel = async (req, res) => {
       password: hashedPassword,
       role: role || 'medecin',
     });
+
+    if (user.role === 'medecin') {
+      await Medecin.findOrCreate({
+        where: { id_utilisateur: user.id },
+        defaults: {
+          id_utilisateur: user.id,
+          specialite: 'Généraliste',
+          numeroOrdre: null,
+          tarif: 0,
+          secteur: 1,
+        },
+      });
+    }
+
+    if (user.role === 'secretaire') {
+      await Secretaire.findOrCreate({
+        where: { id_utilisateur: user.id },
+        defaults: {
+          id_utilisateur: user.id,
+        },
+      });
+    }
 
     return res.status(201).json({
       message: `Compte ${role} créé avec succès.`,
