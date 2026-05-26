@@ -1,28 +1,77 @@
 const RendezVous = require('../models/RendezVous');
 const User = require('../models/User');
+const Patient = require('../models/Patient');
 const Medecin = require('../models/Medecin');
 const { envoyerConfirmationRDV, envoyerAnnulationRDV } = require('./emailController');
 const { Op } = require('sequelize');
 
+const pad = (value) => String(value).padStart(2, '0');
+
+const normalizeDateHeure = (value) => {
+  if (!value) {
+    return { date: null, heure: null };
+  }
+
+  const dateValue = value instanceof Date ? value : new Date(value);
+  if (!Number.isNaN(dateValue.getTime())) {
+    return {
+      date: `${dateValue.getFullYear()}-${pad(dateValue.getMonth() + 1)}-${pad(dateValue.getDate())}`,
+      heure: `${pad(dateValue.getHours())}:${pad(dateValue.getMinutes())}`
+    };
+  }
+
+  const [datePart = null, timePart = ''] = String(value).split(/[T ]/);
+  return {
+    date: datePart,
+    heure: timePart ? timePart.slice(0, 5) : null
+  };
+};
+
+const buildDateHeure = (date, heure) => {
+  const normalizedHeure = heure && heure.length === 5 ? `${heure}:00` : heure;
+  return `${date} ${normalizedHeure}`;
+};
+
+const ensurePatientRow = async (patientId) => {
+  let patient = await Patient.findByPk(patientId);
+  if (!patient) {
+    patient = await Patient.create({ id_utilisateur: patientId });
+  }
+  return patient;
+};
+
 // Créer un rendez-vous
 exports.createRendezVous = async (req, res) => {
   try {
-    const { medecinId, date, heure, motif } = req.body;
-    const patientId = req.user.id;
+    const patientId = Number(req.body.patientId ?? req.user.id);
+    const medecinId = Number(req.body.medecinId ?? req.body.doctorId);
+    const date = req.body.date;
+    const heure = req.body.heure ?? req.body.timeSlot;
+    const motif = req.body.motif;
+    const statut = req.body.statut ?? req.body.status ?? 'confirmé';
+    const duree = Number(req.body.duree ?? req.body.duration ?? 30);
 
-    if (!medecinId || !date || !heure || !motif) {
+    if (!Number.isInteger(patientId) || patientId <= 0) {
+      return res.status(400).json({ message: 'Le patient est requis' });
+    }
+
+    if (!Number.isInteger(medecinId) || medecinId <= 0 || !date || !heure || !motif) {
       return res.status(400).json({ message: 'Tous les champs sont requis' });
     }
+
+    await ensurePatientRow(patientId);
 
     const rdv = await RendezVous.create({
       patientId,
       medecinId,
-      date,
-      heure,
+      dateHeure: buildDateHeure(date, heure),
       motif,
-      statut: 'confirmé',
-      duree: 30
+      statut,
+      duree,
+      estPourTiers: false
     });
+
+    const { date: formattedDate, heure: formattedHeure } = normalizeDateHeure(rdv.dateHeure);
 
     try {
       await envoyerConfirmationRDV(req.user.email, rdv);
@@ -32,7 +81,17 @@ exports.createRendezVous = async (req, res) => {
 
     res.status(201).json({
       message: 'Rendez-vous créé avec succès !',
-      rendezVous: rdv
+      rendezVous: {
+        id: rdv.id,
+        patientId: rdv.patientId,
+        medecinId: rdv.medecinId,
+        date: formattedDate,
+        heure: formattedHeure,
+        dateHeure: rdv.dateHeure,
+        motif: rdv.motif,
+        statut: rdv.statut,
+        duree: rdv.duree
+      }
     });
   } catch (error) {
     console.error('Erreur createRendezVous:', error);
@@ -55,19 +114,22 @@ exports.getRendezVous = async (req, res) => {
 
     const rdvs = await RendezVous.findAll({
       where: whereClause,
-      order: [['date', 'ASC'], ['heure', 'ASC']]
+      order: [['dateHeure', 'ASC']]
     });
 
     const formattedList = [];
     for (const r of rdvs) {
+      const { date, heure } = normalizeDateHeure(r.dateHeure);
       const docUser = await User.findByPk(r.medecinId);
       const med = await Medecin.findOne({ where: { id_utilisateur: r.medecinId } });
-      formattedList.push({
+        formattedList.push({
         id: r.id,
-        date: r.date,
-        heure: r.heure,
-        dateHeure: `${r.date}T${r.heure}`,
-        medecinNom: docUser ? `Dr. ${docUser.prenom} ${docUser.nom}` : 'Dr. Martin',
+          patientId: r.patientId,
+          medecinId: r.medecinId,
+        date,
+        heure,
+        dateHeure: r.dateHeure,
+          medecinNom: docUser ? `Dr. ${docUser.prenom} ${docUser.nom}` : 'Médecin non renseigné',
         specialite: med ? med.specialite : 'Généraliste',
         motif: r.motif,
         statut: r.statut
@@ -91,8 +153,8 @@ exports.getRendezVousPatient = async (req, res) => {
 
     if (upcoming === '1') {
       const today = new Date().toISOString().split('T')[0];
-      whereClause.date = {
-        [Op.gte]: today
+      whereClause.dateHeure = {
+        [Op.gte]: `${today} 00:00:00`
       };
       whereClause.statut = {
         [Op.ne]: 'annulé'
@@ -101,19 +163,22 @@ exports.getRendezVousPatient = async (req, res) => {
 
     const rdvs = await RendezVous.findAll({
       where: whereClause,
-      order: [['date', 'ASC'], ['heure', 'ASC']]
+      order: [['dateHeure', 'ASC']]
     });
 
     const formattedList = [];
     for (const r of rdvs) {
+      const { date, heure } = normalizeDateHeure(r.dateHeure);
       const docUser = await User.findByPk(r.medecinId);
       const med = await Medecin.findOne({ where: { id_utilisateur: r.medecinId } });
-      formattedList.push({
+        formattedList.push({
         id: r.id,
-        date: r.date,
-        heure: r.heure,
-        dateHeure: `${r.date}T${r.heure}`,
-        medecinNom: docUser ? `Dr. ${docUser.prenom} ${docUser.nom}` : 'Dr. Martin',
+          patientId: r.patientId,
+          medecinId: r.medecinId,
+        date,
+        heure,
+        dateHeure: r.dateHeure,
+          medecinNom: docUser ? `Dr. ${docUser.prenom} ${docUser.nom}` : 'Médecin non renseigné',
         specialite: med ? med.specialite : 'Généraliste',
         motif: r.motif,
         statut: r.statut
@@ -138,8 +203,10 @@ exports.updateRendezVous = async (req, res) => {
       return res.status(404).json({ message: 'Rendez-vous non trouvé' });
     }
 
-    if (date) rdv.date = date;
-    if (heure) rdv.heure = heure;
+    if (date || heure) {
+      const current = normalizeDateHeure(rdv.dateHeure);
+      rdv.dateHeure = buildDateHeure(date || current.date, heure || current.heure);
+    }
     if (motif) rdv.motif = motif;
     if (statut) rdv.statut = statut;
 
@@ -184,18 +251,35 @@ exports.cancelRendezVous = async (req, res) => {
 // Créer un rendez-vous pour un tiers
 exports.createRendezVousTiers = async (req, res) => {
   try {
-    const { medecinId, date, heure, motif, tiers } = req.body;
-    const patientId = req.user.id;
+    const patientId = Number(req.body.patientId ?? req.user.id);
+    const medecinId = Number(req.body.medecinId ?? req.body.doctorId);
+    const date = req.body.date;
+    const heure = req.body.heure ?? req.body.timeSlot;
+    const motif = req.body.motif;
+    const statut = req.body.statut ?? req.body.status ?? 'confirmé';
+    const duree = Number(req.body.duree ?? req.body.duration ?? 30);
+
+    if (!Number.isInteger(patientId) || patientId <= 0) {
+      return res.status(400).json({ message: 'Le patient est requis' });
+    }
+
+    if (!Number.isInteger(medecinId) || medecinId <= 0 || !date || !heure || !motif) {
+      return res.status(400).json({ message: 'Tous les champs sont requis' });
+    }
+
+    await ensurePatientRow(patientId);
 
     const rdv = await RendezVous.create({
       patientId,
       medecinId,
-      date,
-      heure,
+      dateHeure: buildDateHeure(date, heure),
       motif,
-      statut: 'confirmé',
-      duree: 30
+      statut,
+      duree,
+      estPourTiers: true
     });
+
+    const { date: formattedDate, heure: formattedHeure } = normalizeDateHeure(rdv.dateHeure);
 
     try {
       await envoyerConfirmationRDV(req.user.email, rdv);
@@ -205,7 +289,17 @@ exports.createRendezVousTiers = async (req, res) => {
 
     res.status(201).json({
       message: 'Rendez-vous créé pour le tiers avec succès !',
-      rendezVous: rdv
+      rendezVous: {
+        id: rdv.id,
+        patientId: rdv.patientId,
+        medecinId: rdv.medecinId,
+        date: formattedDate,
+        heure: formattedHeure,
+        dateHeure: rdv.dateHeure,
+        motif: rdv.motif,
+        statut: rdv.statut,
+        duree: rdv.duree
+      }
     });
   } catch (error) {
     console.error('Erreur createRendezVousTiers:', error);

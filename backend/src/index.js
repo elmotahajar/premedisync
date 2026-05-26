@@ -45,7 +45,7 @@ app.use('/api/admin/rapports', rapportRoutes);
 const auth = require('./middleware/auth');
 const upload = require('./middleware/upload');
 const { signalerProbleme, createFeedback, getAllFeedbacks } = require('./controllers/feedbackController');
-const { getDossier, uploadDocument, getOrdonnances, getPatientById, updatePatientById } = require('./controllers/patientController');
+const { getDossier, uploadDocument, getOrdonnances, getPatientById, updatePatientById, getPatients } = require('./controllers/patientController');
 
 // /api/signalements
 const signalementsRouter = express.Router();
@@ -72,6 +72,7 @@ app.use('/api/avis', avisRouter);
 
 // /api/patients/:id  (GET + PUT for Paramètres)
 const patientsRouter = express.Router();
+patientsRouter.get('/', auth, getPatients);
 patientsRouter.get('/:id', auth, getPatientById);
 patientsRouter.put('/:id', auth, updatePatientById);
 app.use('/api/patients', patientsRouter);

@@ -14,6 +14,7 @@ export class PatientService {
     return this.authService.getPatientId();
   }
 
+  private adminApiUrl = 'http://localhost:3000/api/patients';
   // ─── Dossier ───────────────────────────────────────────────
   getDossier(): Observable<any> {
     return this.http.get(`${this.base}/dossier/patient/${this.patientId}`);
@@ -27,6 +28,31 @@ export class PatientService {
     const formData = new FormData();
     formData.append('document', file);
     return this.http.post(`${this.base}/dossier/patient/${this.patientId}/documents`, formData);
+  }
+
+  getMedecins(): Observable<any> {
+    return this.http.get(`${this.base}/patient/medecins`);
+  }
+
+  // ─── Admin CRUD (existing screens) ────────────────────────
+  getAll(filters?: any, page?: number): Observable<any> {
+    return this.http.get(this.adminApiUrl, { params: { ...filters, page: page ?? 1 } as any });
+  }
+
+  getById(id: number): Observable<any> {
+    return this.http.get(`${this.adminApiUrl}/${id}`);
+  }
+
+  create(data: any): Observable<any> {
+    return this.http.post(this.adminApiUrl, data);
+  }
+
+  update(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.adminApiUrl}/${id}`, data);
+  }
+
+  delete(id: number): Observable<any> {
+    return this.http.delete(`${this.adminApiUrl}/${id}`);
   }
 
   // ─── Ordonnances ───────────────────────────────────────────

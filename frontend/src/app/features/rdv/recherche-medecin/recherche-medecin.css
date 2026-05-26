@@ -1,15 +1,17 @@
 .container {
   min-height: 100vh;
-  background-color: #f0f4f8;
+  background-color: #0f172a;
+  color: #f1f5f9;
 }
 
 .header {
-  background-color: #2563eb;
-  color: white;
+  background-color: #0f172a;
+  color: #f1f5f9;
   padding: 15px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid #334155;
 }
 
 .header h1 {
@@ -18,7 +20,7 @@
 }
 
 .header a {
-  color: white;
+  color: #0ea5e9;
   text-decoration: none;
   font-size: 14px;
 }
@@ -30,7 +32,7 @@
 }
 
 .main h2 {
-  color: #374151;
+  color: #f1f5f9;
   margin-bottom: 30px;
 }
 
@@ -42,10 +44,11 @@
 
 .filtres select {
   padding: 10px 15px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #334155;
   border-radius: 8px;
   font-size: 14px;
-  background: white;
+  background: #1e293b;
+  color: #f1f5f9;
   cursor: pointer;
 }
 
@@ -56,9 +59,10 @@
 }
 
 .card-medecin {
-  background: white;
+  background: #1e293b;
   padding: 20px;
   border-radius: 12px;
+  border: 1px solid #334155;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   display: flex;
   justify-content: space-between;
@@ -66,18 +70,18 @@
 }
 
 .info h3 {
-  color: #1e40af;
+  color: #0ea5e9;
   margin: 0 0 5px;
 }
 
 .info p {
-  color: #6b7280;
+  color: #cbd5e1;
   margin: 3px 0;
   font-size: 14px;
 }
 
 button {
-  background-color: #2563eb;
+  background-color: #0ea5e9;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -87,5 +91,5 @@ button {
 }
 
 button:hover {
-  background-color: #1d4ed8;
+  background-color: #0284c7;
 }

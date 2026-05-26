@@ -70,7 +70,7 @@ export class RdvCrudComponent implements OnInit {
 
   loadPatients(): void {
     this.patientService.getAll().subscribe({
-      next: (data) => {
+      next: (data: any) => {
         const items = Array.isArray(data) ? data : data?.items || data?.patients || [];
         this.patients = items.map((item: any) => ({
           id: item.id,
@@ -95,7 +95,18 @@ export class RdvCrudComponent implements OnInit {
       next: (data) => {
         const items = Array.isArray(data) ? data : data?.items || data?.appointments;
         if (Array.isArray(items) && items.length) {
-          this.appointments.set(items);
+          this.appointments.set(items.map((item: any) => ({
+            id: item.id,
+            patientId: item.patientId ?? item.id_patient,
+            doctorId: item.medecinId ?? item.doctorId,
+            patientName: item.patientName || item.patientNom || String(item.patientId ?? item.id_patient ?? ''),
+            doctorName: item.doctorName || item.medecinNom || (item.medecinId ?? item.doctorId ? `Dr ${item.medecinId ?? item.doctorId}` : ''),
+            date: item.date,
+            timeSlot: item.timeSlot ?? item.heure ?? '',
+            motif: item.motif,
+            duration: item.duration ?? item.duree ?? 30,
+            status: item.status ?? item.statut ?? 'confirmé'
+          })));
         }
         this.loading.set(false);
       },
@@ -172,12 +183,12 @@ export class RdvCrudComponent implements OnInit {
     const status = (value.status ?? 'confirmé') as Appointment['status'];
     const payload = {
       patientId: Number(value.patientId),
-      doctorId: Number(value.doctorId),
+      medecinId: Number(value.doctorId),
       date: value.date ?? '',
-      timeSlot: value.timeSlot ?? '',
+      heure: value.timeSlot ?? '',
       motif: value.motif ?? '',
       duration: Number(value.duration ?? 30),
-      status
+      statut: status
     };
     const patient = this.patients.find(item => item.id === Number(value.patientId));
     const doctor = this.doctors.find(item => item.id === Number(value.doctorId));

@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Patient = require('../models/Patient');
 
 exports.register = async (req, res) => {
   console.log('📥 Body reçu:', req.body);
@@ -18,13 +19,20 @@ exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.create({
+    const user = await User.create({
       nom,
       prenom,
       email,
       password: hashedPassword,
       role: role || 'patient',
     });
+
+    if ((role || 'patient') === 'patient') {
+      await Patient.findOrCreate({
+        where: { id_utilisateur: user.id },
+        defaults: { id_utilisateur: user.id }
+      });
+    }
 
     res.status(201).json({ message: 'Compte créé avec succès !' });
   } catch (error) {

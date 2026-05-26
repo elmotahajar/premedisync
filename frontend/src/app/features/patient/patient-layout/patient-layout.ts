@@ -1,9 +1,9 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../../core/services/auth';
 
 interface SidebarLink {
   label: string;
@@ -20,16 +20,15 @@ interface SidebarLink {
 })
 export class PatientLayoutComponent implements OnInit, OnDestroy {
   private router = inject(Router);
-  private http = inject(HttpClient);
+  private authService = inject(AuthService);
   private routerSub?: Subscription;
 
   sidebarOpen = signal(true);
   pageTitle = signal('Accueil');
   profileMenuOpen = signal(false);
-  notificationCount = signal(2);
+  notificationCount = signal(0);
   
-  patientName = signal('Patient');
-  private apiUrl = 'http://localhost:3000/api';
+  patientName = signal(this.authService.getPrenom() || 'Patient');
 
   sidebarLinks: SidebarLink[] = [
     { label: 'Accueil', route: '/patient/accueil', icon: '🏠' },
@@ -51,19 +50,7 @@ export class PatientLayoutComponent implements OnInit, OnDestroy {
       this.updateTitle(event.urlAfterRedirects || event.url);
     });
 
-    // Fetch patient name
-    const token = localStorage.getItem('token');
-    if (token) {
-      const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-      this.http.get(`${this.apiUrl}/patient/profil`, { headers }).subscribe({
-        next: (data: any) => {
-          if (data && data.prenom && data.nom) {
-            this.patientName.set(`${data.prenom} ${data.nom}`);
-          }
-        },
-        error: (err) => console.error('Erreur chargement profil patient dans layout:', err)
-      });
-    }
+    this.patientName.set(this.authService.getPrenom() || 'Patient');
   }
 
   ngOnDestroy(): void {

@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { PatientService } from '../../../core/services/patient.service';
 import { RdvService } from '../../../core/services/rdv.service';
 import { AuthService } from '../../../core/services/auth';
@@ -18,7 +17,6 @@ export class PatientAccueilComponent implements OnInit {
   private patientService = inject(PatientService);
   private rdvService = inject(RdvService);
   private authService = inject(AuthService);
-  private http = inject(HttpClient);
   private router = inject(Router);
 
   loading = signal(true);
@@ -53,40 +51,36 @@ export class PatientAccueilComponent implements OnInit {
     }
 
     forkJoin({
-      upcomingRdv: this.http.get<any[]>(`http://localhost:3000/api/rendezvous/patient/${patientId}?upcoming=1`),
-      allRdv: this.rdvService.getAll(),
+      upcomingRdv: this.rdvService.getPatientRendezVous(patientId, true),
+      allRdv: this.rdvService.getPatientRendezVous(patientId, false),
       historique: this.patientService.getHistorique(),
       ordonnances: this.patientService.getOrdonnances(),
-      feedbacks: this.http.get<any[]>(`http://localhost:3000/api/avis`)
+      feedbacks: this.patientService.getAvis()
     }).subscribe({
       next: (res: any) => {
-        // Set profile prenom dynamically
         this.patient.set({ prenom: prenom || 'Patient' });
 
-        // Set next appointment from dedicated endpoint
-        if (res.upcomingRdv && res.upcomingRdv.length > 0) {
-          this.prochainRdv.set(res.upcomingRdv[0]);
-        } else {
-          this.prochainRdv.set(null);
-        }
+        const upcomingList = Array.isArray(res.upcomingRdv) ? res.upcomingRdv : [];
+        this.prochainRdv.set(upcomingList[0] || null);
 
-        // Set counters
-        this.totalConsultations.set(res.historique?.length || 0);
+        this.totalConsultations.set(Array.isArray(res.historique) ? res.historique.length : 0);
         this.ordonnancesActives.set(
-          res.ordonnances?.filter((o: any) => o.statut === 'Active' || o.statut === 'Valide' || !o.statut).length || 0
+          (Array.isArray(res.ordonnances)
+            ? res.ordonnances.filter((o: any) => o.statut === 'Active' || o.statut === 'Valide' || !o.statut).length
+            : 0)
         );
 
-        // Find last review from this patient
-        const myAvis = res.feedbacks?.filter((f: any) => f.patientId === patientId);
-        if (myAvis && myAvis.length > 0) {
-          this.derniereEvaluation.set(`${myAvis[0].note}/5 ★`);
+        const avisList = Array.isArray(res.feedbacks) ? res.feedbacks : [];
+        if (avisList.length > 0) {
+          this.derniereEvaluation.set(`${avisList[0].note}/5 ★`);
         } else {
           this.derniereEvaluation.set('Aucun avis');
         }
 
-        // Set recent appointments (limit 5)
-        const rdvs = Array.isArray(res.allRdv) ? res.allRdv : (res.allRdv?.rendezVous || []);
-        this.recentRdv.set(rdvs.slice(0, 5));
+        const rdvs = Array.isArray(res.allRdv) ? res.allRdv : [];
+        this.recentRdv.set(
+          [...rdvs].sort((left, right) => new Date(right.dateHeure).getTime() - new Date(left.dateHeure).getTime()).slice(0, 5)
+        );
 
         this.loading.set(false);
       },

@@ -9,15 +9,22 @@
       <div class="succes">
         <p class="icon">✅</p>
         <h2>Rendez-vous confirmé !</h2>
-        <p>Votre RDV avec <strong>Dr. {{ medecin.nom }}</strong> est confirmé.</p>
+        <p>Votre RDV avec <strong>{{ medecin?.nom }}</strong> est confirmé.</p>
         <p>📅 {{ date }} à {{ heure }}</p>
-        <a routerLink="/dashboard">Retour au dashboard</a>
+        <a routerLink="/patient/accueil">Retour à l'accueil</a>
+      </div>
+    } @else if (!medecin) {
+      <div class="succes">
+        <p class="icon">⚠️</p>
+        <h2>Médecin introuvable</h2>
+        <p>Aucune sélection de médecin n'a été transmise à cette page.</p>
+        <a routerLink="/patient/rendezvous">Retour à la recherche</a>
       </div>
     } @else {
       <h2>Confirmer le Rendez-vous</h2>
 
       <div class="card">
-        <h3>Dr. {{ medecin?.nom }}</h3>
+        <h3>{{ medecin?.nom }}</h3>
         <p>{{ medecin?.specialite }} — {{ medecin?.ville }}</p>
       </div>
 
@@ -70,7 +77,7 @@
           </div>
         }
 
-        <button class="btn-confirmer" (click)="confirmerRdv()" [disabled]="loading()">
+        <button type="button" class="btn-confirmer" (click)="confirmerRdv()" [disabled]="loading()">
           {{ loading() ? 'Confirmation en cours...' : 'Confirmer le RDV' }}
         </button>
       </div>

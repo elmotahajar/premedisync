@@ -87,7 +87,7 @@
                       class="form-input"></textarea>
           </div>
 
-          <button (click)="ajouterMedicament()" class="btn-add-med">
+          <button type="button" (click)="ajouterMedicament()" class="btn-add-med">
             ➕ Ajouter ce médicament
           </button>
         </div>
@@ -106,14 +106,14 @@
                   <span *ngIf="med.instructions" class="med-detail">📝 {{ med.instructions }}</span>
                 </div>
               </div>
-              <button (click)="retirerMedicament(i)" class="btn-remove-med" title="Retirer">❌</button>
+              <button type="button" (click)="retirerMedicament(i)" class="btn-remove-med" title="Retirer">❌</button>
             </div>
           </div>
         </div>
 
         <!-- Bouton de création -->
         <div class="form-actions">
-          <button (click)="creerPrescription()" 
+            <button type="button" (click)="creerPrescription()" 
                   [disabled]="medicamentsAjoutes.length === 0 || creationEnCours"
                   class="btn-create">
             <span *ngIf="!creationEnCours">✅ Créer la prescription</span>

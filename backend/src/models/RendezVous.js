@@ -10,18 +10,17 @@ const RendezVous = sequelize.define('RendezVous', {
   patientId: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    field: 'id_patient',
   },
   medecinId: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    field: 'id_medecin',
   },
-  date: {
-    type: DataTypes.DATEONLY,
+  dateHeure: {
+    type: DataTypes.DATE,
     allowNull: false,
-  },
-  heure: {
-    type: DataTypes.TIME,
-    allowNull: false,
+    field: 'dateHeure',
   },
   motif: {
     type: DataTypes.STRING,
@@ -35,6 +34,14 @@ const RendezVous = sequelize.define('RendezVous', {
     type: DataTypes.INTEGER,
     defaultValue: 30,
   },
+  estPourTiers: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    field: 'estPourTiers',
+  },
+}, {
+  tableName: 'rendezvous',
+  timestamps: false,
 });
 
 module.exports = RendezVous;

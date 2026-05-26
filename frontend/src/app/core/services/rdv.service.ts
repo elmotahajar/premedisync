@@ -7,6 +7,11 @@ export class RdvService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:3000/api/rendez-vous';
 
+  getPatientRendezVous(patientId: number, upcoming = false): Observable<any> {
+    const query = upcoming ? '?upcoming=1' : '';
+    return this.http.get(`http://localhost:3000/api/rendezvous/patient/${patientId}${query}`);
+  }
+
   getAll(): Observable<any> {
     return this.http.get(this.apiUrl);
   }

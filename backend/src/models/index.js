@@ -18,7 +18,7 @@ Medecin.belongsTo(User,        { foreignKey: 'id_utilisateur' });
 Secretaire.belongsTo(User,     { foreignKey: 'id_utilisateur' });
 Administrateur.belongsTo(User, { foreignKey: 'id_utilisateur' });
 
-RendezVous.belongsTo(Patient,  { foreignKey: 'id_patient' });
+RendezVous.belongsTo(Patient,  { foreignKey: 'patientId' });
 Facture.belongsTo(Secretaire,  { foreignKey: 'id_secretaire' });
 
 module.exports = {

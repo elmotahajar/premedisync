@@ -7,7 +7,7 @@
   <main class="main">
     <div class="titre-action">
       <h2>Création de Patients</h2>
-      <button class="btn-ajouter" (click)="afficherFormulaire.set(!afficherFormulaire())">
+      <button type="button" class="btn-ajouter" (click)="afficherFormulaire.set(!afficherFormulaire())">
         + Nouveau Patient
       </button>
     </div>
@@ -49,7 +49,7 @@
             <input type="text" [(ngModel)]="nouveauPatient.numeroSecurite" placeholder="15 chiffres" />
           </div>
         </div>
-        <button class="btn-confirmer" (click)="ajouterPatient()">Créer le compte</button>
+        <button type="button" class="btn-confirmer" (click)="ajouterPatient()">Créer le compte</button>
       </div>
     }
 

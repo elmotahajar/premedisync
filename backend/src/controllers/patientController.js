@@ -3,6 +3,54 @@ const Prescription = require('../models/Prescription');
 const RendezVous = require('../models/RendezVous');
 const User = require('../models/User');
 const Medecin = require('../models/Medecin');
+const Patient = require('../models/Patient');
+
+// Lister les patients pour l'administration
+exports.getPatients = async (req, res) => {
+  try {
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ message: 'Accès interdit' });
+    }
+
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const pageSize = Math.max(1, Math.min(50, parseInt(req.query.pageSize, 10) || 10));
+    const offset = (page - 1) * pageSize;
+
+    const { count, rows } = await User.findAndCountAll({
+      where: { role: 'patient' },
+      attributes: ['id', 'nom', 'prenom', 'email', 'telephone'],
+      order: [['id', 'DESC']],
+      limit: pageSize,
+      offset,
+    });
+
+    const patients = await Promise.all(rows.map(async (user) => {
+      const patient = await Patient.findOne({ where: { id_utilisateur: user.id } });
+      return {
+        id: user.id,
+        firstName: user.prenom,
+        lastName: user.nom,
+        email: user.email,
+        phone: user.telephone || '',
+        dateOfBirth: patient?.dateNaissance || null,
+        gender: 'N/A',
+        address: patient?.adresse || '',
+        socialSecurityNumber: patient?.numeroSecu || '',
+        status: 'actif',
+      };
+    }));
+
+    res.json({
+      patients,
+      total: count,
+      page,
+      pageSize,
+    });
+  } catch (error) {
+    console.error('Erreur getPatients:', error);
+    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+  }
+};
 
 // Obtenir le dossier médical du patient
 exports.getDossier = async (req, res) => {
@@ -84,7 +132,7 @@ exports.getOrdonnances = async (req, res) => {
       return {
         id: p.id,
         date: p.dateEmission,
-        medecin: p.medecin ? `Dr. ${p.medecin.prenom} ${p.medecin.nom}` : 'Dr. Martin',
+        medecin: p.medecin ? `Dr. ${p.medecin.prenom} ${p.medecin.nom}` : 'Médecin non renseigné',
         medicaments: medsStr,
         posologie: posologie || p.notes || 'Voir ordonnance',
         duree,
@@ -108,7 +156,7 @@ exports.getHistorique = async (req, res) => {
     // Fetch consultations from historical appointments or dossier table
     const rdvs = await RendezVous.findAll({
       where: { patientId, statut: 'confirmé' },
-      order: [['date', 'DESC']],
+      order: [['dateHeure', 'DESC']],
     });
 
     const list = [];
@@ -117,8 +165,8 @@ exports.getHistorique = async (req, res) => {
       const med = await Medecin.findOne({ where: { id_utilisateur: r.medecinId } });
       list.push({
         id: r.id,
-        date: r.date,
-        medecin: docUser ? `Dr. ${docUser.prenom} ${docUser.nom}` : 'Dr. Martin',
+        date: r.dateHeure,
+        medecin: docUser ? `Dr. ${docUser.prenom} ${docUser.nom}` : 'Médecin non renseigné',
         specialite: med ? med.specialite : 'Généraliste',
         motif: r.motif
       });
@@ -213,10 +261,24 @@ exports.getPatientById = async (req, res) => {
   try {
     const id = req.params.id || req.user.id;
     const user = await User.findByPk(id, {
-      attributes: ['id', 'nom', 'prenom', 'email', 'telephone', 'dateNaissance', 'adresse']
+      attributes: ['id', 'nom', 'prenom', 'email', 'telephone']
     });
     if (!user) return res.status(404).json({ message: 'Patient introuvable' });
-    res.json(user);
+
+    const patient = await Patient.findOne({
+      where: { id_utilisateur: id },
+      attributes: ['dateNaissance', 'adresse']
+    });
+
+    res.json({
+      id: user.id,
+      nom: user.nom,
+      prenom: user.prenom,
+      email: user.email,
+      telephone: user.telephone || '',
+      dateNaissance: patient?.dateNaissance || null,
+      adresse: patient?.adresse || ''
+    });
   } catch (error) {
     console.error('Erreur getPatientById:', error);
     res.status(500).json({ message: 'Erreur serveur', error: error.message });
@@ -231,8 +293,24 @@ exports.updatePatientById = async (req, res) => {
     const user = await User.findByPk(id);
     if (!user) return res.status(404).json({ message: 'Patient introuvable' });
 
-    await user.update({ nom, prenom, email, telephone, dateNaissance, adresse });
-    res.json({ message: 'Profil mis à jour avec succès', user });
+    await user.update({ nom, prenom, email, telephone });
+
+    let patient = await Patient.findOne({ where: { id_utilisateur: id } });
+    if (!patient) {
+      patient = await Patient.create({
+        id_utilisateur: id,
+        dateNaissance: dateNaissance || null,
+        adresse: adresse || ''
+      });
+    } else {
+      await patient.update({ dateNaissance: dateNaissance || null, adresse: adresse || '' });
+    }
+
+    res.json({
+      message: 'Profil mis à jour avec succès',
+      user,
+      patient
+    });
   } catch (error) {
     console.error('Erreur updatePatientById:', error);
     res.status(500).json({ message: 'Erreur serveur', error: error.message });

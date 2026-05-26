@@ -121,12 +121,46 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   loadDashboardData(): void {
-    // For now, using mock data. Backend call would go here:
-    // this.adminService.getDashboard().subscribe({...})
-    
-    setTimeout(() => {
-      this.loading.set(false);
-    }, 800);
+    this.loading.set(true);
+    this.adminService.getDashboard().subscribe({
+      next: (data) => {
+        if (data.kpiCards) {
+          this.kpiCards = data.kpiCards;
+        }
+        if (data.recentActivities) {
+          this.recentActivities = data.recentActivities;
+        }
+        if (data.quickStats) {
+          this.quickStats.set(data.quickStats);
+        }
+        if (data.charts) {
+          if (data.charts.appointmentsPerDay) {
+            this.appointmentsPerDay = data.charts.appointmentsPerDay;
+          }
+          if (data.charts.consultationsByDoctor) {
+            this.consultationsByDoctor = data.charts.consultationsByDoctor;
+          }
+          if (data.charts.patientsByStatus) {
+            this.patientsByStatus = data.charts.patientsByStatus;
+          }
+          if (data.charts.revenueVsUnpaid) {
+            this.revenueVsUnpaid = data.charts.revenueVsUnpaid;
+          }
+        }
+        this.loading.set(false);
+        // Redraw charts once data is loaded and canvas elements are in DOM
+        setTimeout(() => {
+          this.drawLineChart('appointmentsChart', this.appointmentsPerDay);
+          this.drawBarChart('consultationsChart', this.consultationsByDoctor);
+          this.drawPieChart('patientStatusChart', this.patientsByStatus);
+          this.drawBarChart('revenueChart', this.revenueVsUnpaid);
+        }, 100);
+      },
+      error: (err) => {
+        console.error('Erreur chargement dashboard:', err);
+        this.loading.set(false);
+      }
+    });
   }
 
   getTrendColor(trend: number): string {

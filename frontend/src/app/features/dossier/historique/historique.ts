@@ -102,6 +102,6 @@ export class Historique implements OnInit {
   }
 
   retour(): void {
-    this.router.navigate(['/patient/dashboard']);
+    this.router.navigate(['/patient/accueil']);
   }
 }

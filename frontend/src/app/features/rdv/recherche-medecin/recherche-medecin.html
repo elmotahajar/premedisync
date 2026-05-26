@@ -1,7 +1,7 @@
 <div class="container">
   <header class="header">
     <h1>MediSync</h1>
-    <a routerLink="/dashboard">← Retour</a>
+    <a routerLink="/patient/rendezvous">← Retour</a>
   </header>
 
   <main class="main">
@@ -11,10 +11,9 @@
     <div class="filtres">
       <select [(ngModel)]="specialiteChoisie">
         <option value="">Toutes les spécialités</option>
-        <option value="Généraliste">Généraliste</option>
-        <option value="Cardiologue">Cardiologue</option>
-        <option value="Dermatologue">Dermatologue</option>
-        <option value="Pédiatre">Pédiatre</option>
+        @for (specialite of specialites; track specialite) {
+          <option [value]="specialite">{{ specialite }}</option>
+        }
       </select>
     </div>
 
@@ -27,7 +26,7 @@
             <p>{{ medecin.specialite }}</p>
             <p>📍 {{ medecin.ville }}</p>
           </div>
-          <button (click)="choisirMedecin(medecin)">
+          <button type="button" (click)="choisirMedecin(medecin)">
             Prendre RDV
           </button>
         </div>

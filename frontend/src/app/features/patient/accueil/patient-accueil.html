@@ -35,7 +35,7 @@
             @if (prochainRdv()) {
               {{ prochainRdv().dateHeure | date: 'dd/MM/yyyy HH:mm' }}<br>
               <span style="font-size: 13px; color: var(--text-muted);">
-                avec {{ prochainRdv().medecinNom || prochainRdv().medecin?.nom || 'Dr. Martin' }}
+                avec {{ prochainRdv().medecinNom || prochainRdv().medecin?.nom || 'Médecin non renseigné' }}
               </span>
             } @else {
               Aucun RDV planifié
@@ -119,9 +119,9 @@
               @for (rdv of recentRdv(); track rdv.id) {
                 <tr>
                   <td class="patient-name">
-                    {{ rdv.medecinNom || rdv.medecin?.nom || 'Dr. Martin' }}
+                    {{ rdv.medecinNom || rdv.medecin?.nom || 'Médecin non renseigné' }}
                   </td>
-                  <td>{{ rdv.specialite || rdv.medecin?.specialite || 'Généraliste' }}</td>
+                  <td>{{ rdv.specialite || rdv.medecin?.specialite || 'Spécialité non renseignée' }}</td>
                   <td class="date">{{ rdv.dateHeure | date: 'dd/MM/yyyy à HH:mm' }}</td>
                   <td>
                     <span class="status-badge" [style.backgroundColor]="getStatusColor(rdv.statut)">

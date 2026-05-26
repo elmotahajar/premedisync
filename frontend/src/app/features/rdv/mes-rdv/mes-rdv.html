@@ -1,33 +1,107 @@
 <div class="rdv-container">
   <div class="top-bar">
-    <button class="btn-retour" (click)="retour()">← Retour</button>
-    <h2>Mes Rendez-vous</h2>
+    <button class="btn-retour" type="button" (click)="retour()">← Retour</button>
+    <div>
+      <h2>Mes Rendez-vous</h2>
+      <p class="subtitle">Réserver, consulter et annuler vos rendez-vous depuis un seul écran.</p>
+    </div>
   </div>
 
-  <div class="message" *ngIf="message">{{ message }}</div>
-  <div class="loading" *ngIf="loading">Chargement de vos rendez-vous...</div>
+  @if (message()) {
+    <div class="message success">{{ message() }}</div>
+  }
 
-  <div class="rdv-list" *ngIf="!loading">
-    <div class="rdv-card" *ngFor="let rdv of rendezVous" [style.opacity]="rdv.statut === 'annulé' ? '0.5' : '1'">
-      <div class="rdv-info">
-        <div class="date">{{ rdv.date | date: 'dd/MM/yyyy' }} à {{ rdv.heure }}</div>
-        <div class="medecin">{{ rdv.medecinNom || rdv.medecin || 'Dr. Martin' }} <span style="font-size: 12px; color: var(--text-muted);">({{ rdv.specialite || 'Généraliste' }})</span></div>
-        <div class="motif">Motif : {{ rdv.motif }}</div>
-        <div style="margin-top: 4px;">
-          <span style="font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 12px;"
-                [style.background-color]="rdv.statut === 'annulé' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'"
-                [style.color]="rdv.statut === 'annulé' ? '#fca5a5' : '#a7f3d0'">
-            {{ rdv.statut || 'confirmé' }}
-          </span>
+  @if (error()) {
+    <div class="message danger">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading">Chargement de vos rendez-vous...</div>
+  } @else {
+    <section class="booking-panel">
+      <div class="panel-header">
+        <h3>Prendre un rendez-vous</h3>
+        <p>Recherchez un médecin, choisissez une date et sélectionnez un créneau libre.</p>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label for="searchMedecin">Rechercher un médecin</label>
+          <input id="searchMedecin" class="admin-input" type="search" [(ngModel)]="searchMedecin" placeholder="Nom, spécialité ou ville">
+        </div>
+
+        <div class="form-group">
+          <label for="medecin">Médecin *</label>
+          <select id="medecin" class="admin-select" [(ngModel)]="selectedDoctorId" (change)="choisirMedecin(selectedDoctorId)">
+            <option value="">Sélectionner un médecin</option>
+            @for (medecin of filteredMedecins(); track medecin.id) {
+              <option [value]="medecin.id">{{ medecin.nom }} {{ medecin.specialite ? '— ' + medecin.specialite : '' }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="date">Date *</label>
+          <input id="date" class="admin-input" type="date" [(ngModel)]="selectedDate">
+        </div>
+
+        <div class="form-group full-width">
+          <label>Créneaux *</label>
+          <div class="slot-grid">
+            @for (slot of creneauxDisponibles; track slot) {
+              <button type="button" class="slot-btn" [class.active]="selectedHeure === slot" (click)="selectedHeure = slot">
+                {{ slot }}
+              </button>
+            }
+          </div>
+          @if (creneauxDisponibles.length === 0) {
+            <div class="empty-inline">Aucun créneau disponible pour cette sélection.</div>
+          }
+        </div>
+
+        <div class="form-group full-width">
+          <label for="motif">Motif *</label>
+          <textarea id="motif" class="admin-textarea" rows="3" [(ngModel)]="motif" placeholder="Décrivez brièvement la raison de votre rendez-vous"></textarea>
         </div>
       </div>
-      <div class="rdv-actions" *ngIf="rdv.statut !== 'annulé'">
-        <button class="btn-annuler" (click)="annulerRdv(rdv.id)">Annuler</button>
-      </div>
-    </div>
 
-    <div class="empty" *ngIf="rendezVous.length === 0">
-      Aucun rendez-vous programmé.
-    </div>
-  </div>
+      <div class="form-actions">
+        <button type="button" class="secondary-btn" (click)="retour()">Annuler</button>
+        <button type="button" class="primary-btn" (click)="creerRdv()" [disabled]="saving()">
+          {{ saving() ? 'Création...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </section>
+
+    <section class="list-panel">
+      <div class="panel-header">
+        <h3>Vos rendez-vous</h3>
+        <p>Liste complète de vos rendez-vous avec le statut actuel.</p>
+      </div>
+
+      <div class="rdv-list">
+        @for (rdv of rendezVous(); track rdv.id) {
+          <div class="rdv-card" [class.cancelled]="rdv.statut === 'annulé'">
+            <div class="rdv-info">
+              <div class="date">{{ rdv.dateHeure | date: 'dd/MM/yyyy à HH:mm' }}</div>
+              <div class="medecin">{{ rdv.medecinNom || 'Médecin non renseigné' }} <span>{{ rdv.specialite || 'Spécialité non renseignée' }}</span></div>
+              <div class="motif">{{ rdv.motif }}</div>
+              <span class="status-pill" [class.confirmed]="rdv.statut === 'confirmé'" [class.pending]="rdv.statut === 'en attente'" [class.cancelled-pill]="rdv.statut === 'annulé'">
+                {{ rdv.statut || 'confirmé' }}
+              </span>
+            </div>
+            @if (rdv.statut !== 'annulé') {
+              <div class="rdv-actions">
+                <button type="button" class="btn-annuler" (click)="annulerRdv(rdv.id)">Annuler</button>
+              </div>
+            }
+          </div>
+        }
+
+        @if (rendezVous().length === 0) {
+          <div class="empty">Aucun rendez-vous programmé.</div>
+        }
+      </div>
+    </section>
+  }
 </div>

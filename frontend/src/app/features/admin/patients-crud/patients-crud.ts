@@ -65,7 +65,7 @@ export class PatientsCrudComponent implements OnInit {
   loadPatients(): void {
     this.loading.set(true);
     this.patientService.getAll().subscribe({
-      next: (data) => {
+      next: (data: any) => {
         const items = Array.isArray(data) ? data : data?.items || data?.patients;
         if (Array.isArray(items) && items.length) {
           this.patients.set(items);
@@ -155,18 +155,18 @@ export class PatientsCrudComponent implements OnInit {
           this.patients.update(list => list.map(patient => patient.id === this.editId ? { ...patient, ...payload } as Patient : patient));
           this.finishAction('Patient mis à jour');
         },
-        error: (error) => {
+        error: (error: any) => {
           this.patients.update(list => list.map(patient => patient.id === this.editId ? { ...patient, ...payload } as Patient : patient));
           this.finishAction(error?.error?.message || 'Patient mis à jour localement');
         }
       });
     } else {
       this.patientService.create(payload).subscribe({
-        next: (res) => {
+        next: (_res: any) => {
           this.loadPatients();
           this.finishAction('Patient ajouté avec succès');
         },
-        error: (error) => {
+        error: (error: any) => {
           this.finishAction(error?.error?.message || 'Erreur lors de l’ajout du patient');
         }
       });

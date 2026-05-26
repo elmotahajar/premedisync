@@ -5,7 +5,11 @@
   </header>
 
   <main class="main">
-    @if (consultation()) {
+    @if (loading()) {
+      <p class="introuvable">Chargement du détail de la consultation...</p>
+    } @else if (error()) {
+      <p class="introuvable">{{ error() }}</p>
+    } @else if (consultation()) {
       <h2>Détail de la Consultation</h2>
 
       <div class="card-info">
@@ -38,11 +42,15 @@
 
       <div class="card-medicaments">
         <h3>💊 Médicaments prescrits</h3>
-        <ul>
-          @for (med of consultation()!.medicaments; track med) {
-            <li>{{ med }}</li>
-          }
-        </ul>
+        @if (consultation()!.medicaments.length) {
+          <ul>
+            @for (med of consultation()!.medicaments; track med) {
+              <li>{{ med }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="empty-text">Aucun médicament associé à cette consultation.</p>
+        }
       </div>
 
     } @else {

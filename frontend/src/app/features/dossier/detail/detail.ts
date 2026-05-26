@@ -1,37 +1,71 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-
-interface Consultation {
-  id: number;
-  date: string;
-  medecin: string;
-  specialite: string;
-  motif: string;
-  diagnostic: string;
-  compteRendu: string;
-  medicaments: string[];
-}
+import { forkJoin } from 'rxjs';
+import { PatientService } from '../../../core/services/patient.service';
 
 @Component({
   selector: 'app-detail',
-  imports: [RouterLink],
+  standalone: true,
+  imports: [CommonModule, RouterLink],
   templateUrl: './detail.html',
   styleUrl: './detail.css',
 })
-export class Detail {
+export class Detail implements OnInit {
   private route = inject(ActivatedRoute);
+  private patientService = inject(PatientService);
 
-  consultations: Consultation[] = [
-    { id: 1, date: '2026-04-15', medecin: 'Dr. Benali', specialite: 'Généraliste', motif: 'Consultation générale', diagnostic: 'Grippe saisonnière', compteRendu: 'Patient présentant fièvre et toux. Repos recommandé pendant 5 jours.', medicaments: ['Paracétamol 1g', 'Sirop pour la toux'] },
-    { id: 2, date: '2026-03-10', medecin: 'Dr. Alaoui', specialite: 'Cardiologue', motif: 'Suivi', diagnostic: 'Tension artérielle stable', compteRendu: 'Tension 12/8. Bilan satisfaisant. Prochain suivi dans 6 mois.', medicaments: ['Amlodipine 5mg'] },
-    { id: 3, date: '2026-02-20', medecin: 'Dr. Idrissi', specialite: 'Pédiatre', motif: 'Urgence', diagnostic: 'Angine bactérienne', compteRendu: 'Gorge très inflammée. Antibiothérapie prescrite pour 7 jours.', medicaments: ['Amoxicilline 500mg', 'Ibuprofène 400mg'] },
-  ];
+  loading = signal(true);
+  error = signal<string | null>(null);
+  consultation = signal<any | null>(null);
 
-  consultation = signal<Consultation | undefined>(undefined);
-
-  constructor() {
+  ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    const found = this.consultations.find(c => c.id === id);
-    this.consultation.set(found);
+    this.loadConsultation(id);
+  }
+
+  loadConsultation(id: number): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    forkJoin({
+      historique: this.patientService.getHistorique(),
+      ordonnances: this.patientService.getOrdonnances()
+    }).subscribe({
+      next: (response: any) => {
+        const historique = Array.isArray(response.historique) ? response.historique : [];
+        const consultation = historique.find((item: any) => item.id === id);
+
+        if (!consultation) {
+          this.error.set('Consultation introuvable.');
+          this.consultation.set(null);
+          this.loading.set(false);
+          return;
+        }
+
+        const prescriptions = Array.isArray(response.ordonnances) ? response.ordonnances : [];
+
+        this.consultation.set({
+          ...consultation,
+          diagnostic: consultation.diagnostic || 'Non disponible dans le dossier patient',
+          compteRendu: consultation.compteRendu || 'Aucun compte-rendu détaillé disponible.',
+          medicaments: prescriptions
+            .filter((item: any) => item.date && consultation.date && String(item.date).startsWith(String(consultation.date)))
+            .reduce((accumulator: string[], item: any) => {
+              const items = String(item.medicaments || '')
+                .split(',')
+                .map((medicament) => medicament.trim())
+                .filter(Boolean);
+              return [...accumulator, ...items];
+            }, [])
+        });
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Erreur chargement détail consultation:', err);
+        this.error.set('Impossible de charger le détail de la consultation.');
+        this.loading.set(false);
+      }
+    });
   }
 }

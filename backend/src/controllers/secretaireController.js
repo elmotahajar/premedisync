@@ -1,4 +1,4 @@
-const { User, RendezVous, Facture, FeuilleSoins } = require('../models');
+const { User, Patient, RendezVous, Facture, FeuilleSoins } = require('../models');
 const bcrypt = require('bcryptjs');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
@@ -14,7 +14,7 @@ const path = require('path');
  */
 exports.creerComptePatient = async (req, res) => {
   try {
-    const { nom, prenom, email } = req.body;
+    const { nom, prenom, email, telephone, adresse, dateNaissance, numeroSecurite } = req.body;
 
     // Vérification unicité email
     const existingUser = await User.findOne({ where: { email } });
@@ -32,7 +32,29 @@ exports.creerComptePatient = async (req, res) => {
         email,
         password: hashedPassword,
         role: 'patient',
+        telephone: telephone || ''
     });
+
+    await Patient.findOrCreate({
+      where: { id_utilisateur: patient.id },
+      defaults: {
+        id_utilisateur: patient.id,
+        dateNaissance: dateNaissance || null,
+        adresse: adresse || '',
+        numeroSecu: numeroSecurite || null,
+      }
+    });
+
+    if (dateNaissance || adresse || numeroSecurite) {
+      await Patient.update(
+        {
+          dateNaissance: dateNaissance || null,
+          adresse: adresse || '',
+          numeroSecu: numeroSecurite || null,
+        },
+        { where: { id_utilisateur: patient.id } }
+      );
+    }
 
     // TODO: envoyer l'email avec le mot de passe temporaire (nodemailer)
 
@@ -59,11 +81,26 @@ exports.creerComptePatient = async (req, res) => {
  */
 exports.listerPatients = async (req, res) => {
   try {
-    const patients = await User.findAll({
+    const users = await User.findAll({
       where: { role: 'patient' },
-      attributes: ['id', 'nom', 'prenom', 'email', 'telephone', 'dateNaissance', 'createdAt'],
+      attributes: ['id', 'nom', 'prenom', 'email', 'telephone'],
       order: [['nom', 'ASC']],
     });
+
+    const patients = await Promise.all(users.map(async (user) => {
+      const patient = await Patient.findOne({ where: { id_utilisateur: user.id } });
+      return {
+        id: user.id,
+        nom: user.nom,
+        prenom: user.prenom,
+        telephone: user.telephone || '',
+        email: user.email,
+        adresse: patient?.adresse || '',
+        dateNaissance: patient?.dateNaissance || null,
+        numeroSecurite: patient?.numeroSecu || '',
+      };
+    }));
+
     return res.json(patients);
   } catch (error) {
     console.error('listerPatients:', error);
