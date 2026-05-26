@@ -1,9 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { PatientService } from '../../../core/services/patient.service';
 import { RdvService } from '../../../core/services/rdv.service';
+import { AuthService } from '../../../core/services/auth';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -16,10 +17,12 @@ import { forkJoin } from 'rxjs';
 export class PatientAccueilComponent implements OnInit {
   private patientService = inject(PatientService);
   private rdvService = inject(RdvService);
+  private authService = inject(AuthService);
   private http = inject(HttpClient);
   private router = inject(Router);
 
   loading = signal(true);
+  error = signal<string | null>(null);
   patient = signal<any>({});
   
   // KPI Cards
@@ -36,47 +39,60 @@ export class PatientAccueilComponent implements OnInit {
   }
 
   loadData() {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    this.loading.set(true);
+    this.error.set(null);
+    const patientId = this.authService.getPatientId();
+    const prenom = this.authService.getPrenom();
+    
+    this.patient.set({ prenom });
+
+    if (!patientId) {
+      this.error.set('Session expirée. Veuillez vous reconnecter.');
+      this.loading.set(false);
+      return;
+    }
 
     forkJoin({
-      profil: this.patientService.getProfil(),
-      rdvs: this.rdvService.getAll(),
+      upcomingRdv: this.http.get<any[]>(`http://localhost:3000/api/rendezvous/patient/${patientId}?upcoming=1`),
+      allRdv: this.rdvService.getAll(),
       historique: this.patientService.getHistorique(),
-      ordonnances: this.patientService.getOrdonnances()
+      ordonnances: this.patientService.getOrdonnances(),
+      feedbacks: this.http.get<any[]>(`http://localhost:3000/api/avis`)
     }).subscribe({
       next: (res: any) => {
-        this.patient.set(res.profil);
-        
-        // Compute KPIs
-        const now = new Date();
-        const futureRdvs = res.rdvs
-          .filter((r: any) => new Date(r.dateHeure) > now && r.statut !== 'Annulé')
-          .sort((a: any, b: any) => new Date(a.dateHeure).getTime() - new Date(b.dateHeure).getTime());
-        
-        if (futureRdvs.length > 0) {
-          this.prochainRdv.set(futureRdvs[0]);
+        // Set profile prenom dynamically
+        this.patient.set({ prenom: prenom || 'Patient' });
+
+        // Set next appointment from dedicated endpoint
+        if (res.upcomingRdv && res.upcomingRdv.length > 0) {
+          this.prochainRdv.set(res.upcomingRdv[0]);
+        } else {
+          this.prochainRdv.set(null);
         }
 
+        // Set counters
         this.totalConsultations.set(res.historique?.length || 0);
-        this.ordonnancesActives.set(res.ordonnances?.filter((o: any) => o.statut === 'Active' || o.statut === 'Valide' || !o.statut).length || 0);
-        
-        // Set recent appointments
-        this.recentRdv.set(res.rdvs.slice(0, 5));
-        
+        this.ordonnancesActives.set(
+          res.ordonnances?.filter((o: any) => o.statut === 'Active' || o.statut === 'Valide' || !o.statut).length || 0
+        );
+
+        // Find last review from this patient
+        const myAvis = res.feedbacks?.filter((f: any) => f.patientId === patientId);
+        if (myAvis && myAvis.length > 0) {
+          this.derniereEvaluation.set(`${myAvis[0].note}/5 ★`);
+        } else {
+          this.derniereEvaluation.set('Aucun avis');
+        }
+
+        // Set recent appointments (limit 5)
+        const rdvs = Array.isArray(res.allRdv) ? res.allRdv : (res.allRdv?.rendezVous || []);
+        this.recentRdv.set(rdvs.slice(0, 5));
+
         this.loading.set(false);
       },
       error: (err) => {
         console.error('Erreur chargement donnees accueil patient:', err);
-        // Fallback mock data
-        this.patient.set({ prenom: 'Patient', nom: '' });
-        this.prochainRdv.set({ dateHeure: '2026-06-01T10:00:00', medecinNom: 'Dr. Martin' });
-        this.totalConsultations.set(3);
-        this.ordonnancesActives.set(2);
-        this.recentRdv.set([
-          { id: 1, dateHeure: '2026-05-15T14:30:00', medecinNom: 'Dr. Martin', specialite: 'Généraliste', statut: 'Confirmé' },
-          { id: 2, dateHeure: '2026-04-10T10:00:00', medecinNom: 'Dr. Bernard', specialite: 'Cardiologue', statut: 'Confirmé' }
-        ]);
+        this.error.set('Impossible de charger les données réelles.');
         this.loading.set(false);
       }
     });

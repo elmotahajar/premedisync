@@ -1,56 +1,164 @@
-<div class="signalement-container">
-  <div class="top-bar">
-    <button class="btn-retour" (click)="retour()">← Retour</button>
-    <h2>Signaler un problème</h2>
+<div class="avis-container">
+  <div class="page-header">
+    <button class="btn-back" (click)="retour()">← Retour</button>
+    <div>
+      <h1>Avis &amp; Signalements</h1>
+      <p class="subtitle">Partagez votre expérience ou signalez un problème</p>
+    </div>
   </div>
 
-  <div class="form-card">
-    <p class="info-text">
-      Vous rencontrez un problème ? Décrivez-le nous, nous reviendrons vers vous rapidement.
-    </p>
+  <div class="content-grid">
+    <!-- ─ Left: Forms ─────────────────────────────── -->
+    <div class="forms-column">
 
-    <div class="success" *ngIf="messageSucces">✅ {{ messageSucces }}</div>
-    <div class="error" *ngIf="messageErreur">❌ {{ messageErreur }}</div>
+      <!-- Leave Review -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-icon">⭐</span>
+          <div>
+            <h2>Donner mon avis</h2>
+            <p class="subtitle">Partagez votre expérience avec MediSync.</p>
+          </div>
+        </div>
 
-    <form (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label>Type de problème *</label>
-        <select [(ngModel)]="signalement.type" name="type" required>
-          <option value="">Sélectionnez un type</option>
-          <option *ngFor="let type of typesSignalement" [value]="type">{{ type }}</option>
-        </select>
+        <form (ngSubmit)="submitAvis()" #avisForm="ngForm">
+          <div class="form-group">
+            <label>Note globale</label>
+            <div class="stars-select">
+              <select [(ngModel)]="avis.note" name="note" id="avis-note">
+                <option [value]="5">⭐⭐⭐⭐⭐ — Excellent (5/5)</option>
+                <option [value]="4">⭐⭐⭐⭐ — Très bien (4/5)</option>
+                <option [value]="3">⭐⭐⭐ — Moyen (3/5)</option>
+                <option [value]="2">⭐⭐ — Mauvais (2/5)</option>
+                <option [value]="1">⭐ — Très mauvais (1/5)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="avis-commentaire">Commentaire</label>
+            <textarea
+              id="avis-commentaire"
+              [(ngModel)]="avis.commentaire"
+              name="commentaire"
+              placeholder="Votre commentaire ici..."
+              rows="4"
+              required>
+            </textarea>
+          </div>
+
+          <div class="msg success" *ngIf="messageAvisSucces()">✅ {{ messageAvisSucces() }}</div>
+          <div class="msg danger"  *ngIf="messageAvisErreur()">⚠️ {{ messageAvisErreur() }}</div>
+
+          <button type="submit" class="btn-primary" [disabled]="submittingAvis()">
+            <span *ngIf="submittingAvis()" class="btn-spinner"></span>
+            {{ submittingAvis() ? 'Publication...' : 'Publier mon avis' }}
+          </button>
+        </form>
       </div>
 
-      <div class="form-group">
-        <label>Niveau d'urgence</label>
-        <div class="radio-group">
-          <label>
-            <input type="radio" [(ngModel)]="signalement.urgence" name="urgence" value="faible">
-            Faible (peut attendre)
-          </label>
-          <label>
-            <input type="radio" [(ngModel)]="signalement.urgence" name="urgence" value="normale">
-            Normale
-          </label>
-          <label>
-            <input type="radio" [(ngModel)]="signalement.urgence" name="urgence" value="urgent">
-            Urgent
-          </label>
+      <!-- Submit Report -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <span class="section-icon">⚠️</span>
+          <div>
+            <h2>Signaler un dysfonctionnement</h2>
+            <p class="subtitle">Décrivez le problème rencontré.</p>
+          </div>
+        </div>
+
+        <form (ngSubmit)="submitSignalement()" #sigForm="ngForm">
+          <div class="form-group">
+            <label for="sig-type">Type de problème</label>
+            <select [(ngModel)]="signalement.type" name="type" id="sig-type" required>
+              <option value="">— Choisir —</option>
+              <option *ngFor="let t of typesSignalement" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Urgence</label>
+            <div class="urgency-selector">
+              <label class="radio-label">
+                <input type="radio" [(ngModel)]="signalement.urgence" name="urgence" value="basse" />
+                <span class="radio-chip low">Basse</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" [(ngModel)]="signalement.urgence" name="urgence" value="normale" />
+                <span class="radio-chip normal">Normale</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" [(ngModel)]="signalement.urgence" name="urgence" value="haute" />
+                <span class="radio-chip high">Haute</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="sig-desc">Description détaillée</label>
+            <textarea
+              id="sig-desc"
+              [(ngModel)]="signalement.description"
+              name="description"
+              placeholder="Décrivez le problème en détail (min. 10 caractères)..."
+              rows="4"
+              required>
+            </textarea>
+          </div>
+
+          <div class="msg success" *ngIf="messageSigSucces()">✅ {{ messageSigSucces() }}</div>
+          <div class="msg danger"  *ngIf="messageSigErreur()">⚠️ {{ messageSigErreur() }}</div>
+
+          <button type="submit" class="btn-danger-outline" [disabled]="submittingSig()">
+            <span *ngIf="submittingSig()" class="btn-spinner"></span>
+            {{ submittingSig() ? 'Envoi...' : 'Envoyer le signalement' }}
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ─ Right: Feed ─────────────────────────────── -->
+    <div class="feed-column">
+      <div class="section-card feed-card">
+        <div class="section-card-header">
+          <span class="section-icon">💬</span>
+          <div>
+            <h2>Mes avis publiés</h2>
+            <p class="subtitle">Vos retours envoyés à MediSync.</p>
+          </div>
+        </div>
+
+        <!-- Spinner -->
+        <div class="spinner-wrap" *ngIf="loading()">
+          <div class="spinner"></div>
+          <span>Chargement des avis...</span>
+        </div>
+
+        <!-- Error -->
+        <div class="msg danger" *ngIf="error()">⚠️ {{ error() }}</div>
+
+        <!-- List -->
+        <div class="feed-scroll" *ngIf="!loading()">
+          <!-- Empty -->
+          <div class="empty-state" *ngIf="feedbacks().length === 0">
+            <div class="empty-icon">💬</div>
+            <p>Vous n'avez encore publié aucun avis.</p>
+          </div>
+
+          <!-- Cards -->
+          <div class="avis-card" *ngFor="let f of feedbacks()">
+            <div class="avis-header">
+              <div class="patient-name">{{ f.patientNom || 'Patient' }}</div>
+              <div class="stars">
+                <span *ngFor="let s of starsArray(f.note)"
+                  [class.filled]="s === '★'">{{ s }}</span>
+              </div>
+            </div>
+            <p class="comment">{{ f.commentaire }}</p>
+            <span class="date">{{ f.date | date:'dd/MM/yyyy à HH:mm' }}</span>
+          </div>
         </div>
       </div>
-
-      <div class="form-group">
-        <label>Description détaillée *</label>
-        <textarea 
-          [(ngModel)]="signalement.description" 
-          name="description" 
-          rows="5" 
-          placeholder="Décrivez précisément votre problème..."
-          required></textarea>
-        <small>Minimum 10 caractères</small>
-      </div>
-
-      <button type="submit" class="btn-submit">Envoyer le signalement</button>
-    </form>
+    </div>
   </div>
 </div>

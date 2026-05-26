@@ -1,82 +1,126 @@
 <div class="prescription-container">
+  <!-- En-tête avec nom du médecin -->
   <div class="header">
+    <div class="header-content">
+      <h1>💊 Prescription Électronique</h1>
+      <p class="doctor-name">Dr. {{ medecinNom }}</p>
+    </div>
     <button class="btn-back" routerLink="/medecin/dashboard">← Retour</button>
-    <h1>💊 Prescription Électronique</h1>
   </div>
 
   <div class="content">
-    <!-- Liste des patients -->
-    <div class="patients-list">
-      <h3>👥 Mes patients</h3>
-      <div class="patient-cards">
+    <!-- Panneau gauche - Liste des patients -->
+    <div class="patients-panel">
+      <div class="panel-header">
+        <h3>👥 Mes patients</h3>
+        <span *ngIf="chargementPatients" class="loading-indicator">⏳</span>
+      </div>
+
+      <div class="patient-list" *ngIf="!chargementPatients">
+        <div *ngIf="patients.length === 0" class="empty-state">
+          <p>Aucun patient trouvé</p>
+        </div>
+
         <div *ngFor="let patient of patients" 
-             class="patient-card" 
-             [class.selected]="patientSelectionne?.id === patient.id"
+             class="patient-item" 
+             [class.active]="patientSelectionne?.id === patient.id"
              (click)="selectionnerPatient(patient)">
-          <strong>{{ patient.nom }}</strong>
-          <span>{{ patient.age }} ans</span>
+          <div class="patient-name">{{ patient.prenom }} {{ patient.nom }}</div>
+          <div class="patient-info">{{ patient.dateNaissance ? patient.dateNaissance : 'N/A' }}</div>
         </div>
       </div>
     </div>
 
-    <!-- Formulaire de prescription -->
-    <div class="prescription-form" *ngIf="patientSelectionne">
-      <h3>Prescription pour {{ patientSelectionne.nom }}</h3>
+    <!-- Panneau droit - Formulaire de prescription -->
+    <div class="prescription-panel">
+      <!-- Aucun patient sélectionné -->
+      <div *ngIf="!patientSelectionne" class="empty-form-state">
+        <div class="empty-icon">👈</div>
+        <p>Sélectionnez un patient pour créer une prescription</p>
+      </div>
 
-      <!-- Recherche médicaments -->
-      <div class="form-group">
-        <label>🔍 Rechercher un médicament</label>
-        <div class="search-box">
-          <input type="text" 
-                 [(ngModel)]="rechercheMedicament" 
-                 placeholder="Nom du médicament..."
-                 (keyup.enter)="ajouterMedicament()">
-          <button (click)="ajouterMedicament()">Ajouter</button>
+      <!-- Formulaire de prescription -->
+      <div *ngIf="patientSelectionne" class="prescription-form">
+        <div class="form-header">
+          <h2>Prescription pour <strong>{{ patientSelectionne.prenom }} {{ patientSelectionne.nom }}</strong></h2>
+        </div>
+
+        <!-- Ajouter un médicament -->
+        <div class="form-section">
+          <h4 class="section-title">📋 Ajouter un médicament</h4>
+
+          <div class="form-group">
+            <label for="med-nom">Nom du médicament *</label>
+            <input type="text" 
+                   id="med-nom"
+                   [(ngModel)]="medicamentForm.nom" 
+                   placeholder="Ex: Amoxicilline, Paracétamol..."
+                   class="form-input">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="med-posologie">Posologie</label>
+              <input type="text" 
+                     id="med-posologie"
+                     [(ngModel)]="medicamentForm.posologie" 
+                     placeholder="Ex: 1 comprimé x3/jour"
+                     class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label for="med-duree">Durée (jours) *</label>
+              <input type="number" 
+                     id="med-duree"
+                     [(ngModel)]="medicamentForm.duree" 
+                     min="1"
+                     class="form-input">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="med-instructions">Instructions spéciales</label>
+            <textarea id="med-instructions"
+                      [(ngModel)]="medicamentForm.instructions" 
+                      placeholder="Ex: À prendre avec les repas, avaler entier..."
+                      rows="2"
+                      class="form-input"></textarea>
+          </div>
+
+          <button (click)="ajouterMedicament()" class="btn-add-med">
+            ➕ Ajouter ce médicament
+          </button>
+        </div>
+
+        <!-- Liste des médicaments ajoutés -->
+        <div *ngIf="medicamentsAjoutes.length > 0" class="form-section">
+          <h4 class="section-title">💊 Médicaments prescrits ({{ medicamentsAjoutes.length }})</h4>
+
+          <div class="medicaments-added">
+            <div *ngFor="let med of medicamentsAjoutes; let i = index" class="medicament-card">
+              <div class="medicament-info">
+                <div class="med-name">{{ med.nom }}</div>
+                <div class="med-details">
+                  <span *ngIf="med.posologie" class="med-detail">📌 {{ med.posologie }}</span>
+                  <span *ngIf="med.duree" class="med-detail">📅 {{ med.duree }} jours</span>
+                  <span *ngIf="med.instructions" class="med-detail">📝 {{ med.instructions }}</span>
+                </div>
+              </div>
+              <button (click)="retirerMedicament(i)" class="btn-remove-med" title="Retirer">❌</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton de création -->
+        <div class="form-actions">
+          <button (click)="creerPrescription()" 
+                  [disabled]="medicamentsAjoutes.length === 0 || creationEnCours"
+                  class="btn-create">
+            <span *ngIf="!creationEnCours">✅ Créer la prescription</span>
+            <span *ngIf="creationEnCours">⏳ Création en cours...</span>
+          </button>
         </div>
       </div>
-
-      <!-- Liste des médicaments -->
-      <div class="medicaments-list" *ngIf="medicamentsAjoutes.length > 0">
-        <label>💊 Médicaments prescrits</label>
-        <div *ngFor="let med of medicamentsAjoutes" class="medicament-item">
-          <span>{{ med }}</span>
-          <button (click)="retirerMedicament(med)">❌</button>
-        </div>
-      </div>
-
-      <!-- Posologie -->
-      <div class="form-group">
-        <label>📋 Posologie</label>
-        <textarea [(ngModel)]="prescription.posologie" 
-                  rows="3" 
-                  placeholder="Ex: 1 comprimé matin, midi et soir"></textarea>
-      </div>
-
-      <!-- Durée -->
-      <div class="form-group">
-        <label>📅 Durée du traitement (jours)</label>
-        <input type="number" [(ngModel)]="prescription.duree">
-      </div>
-
-      <!-- Remarques -->
-      <div class="form-group">
-        <label>📝 Remarques supplémentaires</label>
-        <textarea [(ngModel)]="prescription.remarques" 
-                  rows="2" 
-                  placeholder="Précautions, contre-indications..."></textarea>
-      </div>
-
-      <!-- Boutons -->
-      <div class="actions">
-        <button class="btn-generate" (click)="genererPDF()">
-          📄 Générer la prescription
-        </button>
-      </div>
-    </div>
-
-    <!-- Message si pas de patient sélectionné -->
-    <div class="no-patient" *ngIf="!patientSelectionne">
-      <p>👈 Sélectionnez un patient pour créer une prescription</p>
     </div>
   </div>
 </div>

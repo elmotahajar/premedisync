@@ -9,9 +9,15 @@
   } @else {
     <!-- Welcome Header -->
     <div class="welcome-header">
-      <h1 class="welcome-title">Bonjour, {{ patient().prenom }} {{ patient().nom }}</h1>
+      <h1 class="welcome-title">Bonjour, {{ patient().prenom }}</h1>
       <p class="welcome-subtitle">Bienvenue dans votre espace santé personnel.</p>
     </div>
+
+    @if (error()) {
+      <div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #fca5a5; padding: 16px; border-radius: 8px; margin-bottom: 24px; text-align: center;">
+        ⚠️ {{ error() }}
+      </div>
+    }
 
     <!-- KPI CARDS ROW -->
     <section class="kpi-section">

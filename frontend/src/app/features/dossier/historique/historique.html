@@ -1,20 +1,87 @@
-<div class="container">
+<div class="dossier-container">
   <div class="header">
     <button class="btn-back" (click)="retour()">← Retour</button>
-    <h1>Historique des consultations</h1>
+    <h1>Mon Dossier Médical</h1>
   </div>
 
-  <div class="loading" *ngIf="loading">Chargement...</div>
+  <div class="loading" *ngIf="loading()">Chargement de votre dossier médical...</div>
 
-  <div class="historique-list">
-    <div class="card" *ngFor="let consultation of historique" (click)="voirDetails(consultation.id)">
-      <div class="date">{{ consultation.date }}</div>
-      <div class="medecin">{{ consultation.medecin }}</div>
-      <div class="motif">{{ consultation.motif }}</div>
+  <div class="error" *ngIf="error()">⚠️ {{ error() }}</div>
+
+  <div class="dossier-content" *ngIf="!loading()">
+    <!-- Grid row for medical profile info -->
+    <div class="profile-grid">
+      <!-- Allergies Card -->
+      <div class="profile-card allergy-card">
+        <div class="card-header">
+          <span class="icon">⚠️</span>
+          <h3>Allergies & Sensibilités</h3>
+        </div>
+        <p class="card-content">{{ allergies() }}</p>
+      </div>
+
+      <!-- Antecedents Card -->
+      <div class="profile-card antecedent-card">
+        <div class="card-header">
+          <span class="icon">📜</span>
+          <h3>Antécédents Médicaux</h3>
+        </div>
+        <p class="card-content">{{ antecedents() }}</p>
+      </div>
     </div>
 
-    <div class="empty" *ngIf="!loading && historique.length === 0">
-      Aucune consultation trouvée.
+    <!-- Document Uploader Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <h2>📁 Mes Documents Médicaux</h2>
+        <p class="subtitle">Ajoutez et conservez vos ordonnances externes, examens de labo, radios (PDF, JPG, PNG - max 20 Mo)</p>
+      </div>
+
+      <!-- Upload form action -->
+      <div class="upload-zone">
+        <label class="btn-upload">
+          <span>📤 Choisir un document à téléverser</span>
+          <input type="file" (change)="onFichierSelectionne($event)" accept=".pdf,.png,.jpg,.jpeg" style="display: none;" [disabled]="uploading()" />
+        </label>
+        <span class="uploading-spinner" *ngIf="uploading()">Téléversement en cours...</span>
+      </div>
+
+      <div class="msg success" *ngIf="messageSucces()">{{ messageSucces() }}</div>
+      <div class="msg danger" *ngIf="messageErreur()">{{ messageErreur() }}</div>
+
+      <!-- Uploaded documents list -->
+      <div class="docs-list">
+        <div class="doc-item" *ngFor="let doc of documents()">
+          <span class="doc-icon">📄</span>
+          <div class="doc-info">
+            <span class="doc-name">{{ doc.nom }}</span>
+            <span class="doc-meta">Taille: {{ (doc.taille / 1024 / 1024) | number:'1.1-2' }} Mo - Uploadé le {{ doc.dateUpload | date:'dd/MM/yyyy à HH:mm' }}</span>
+          </div>
+          <a [href]="'http://localhost:3000/uploads/' + doc.chemin" target="_blank" class="btn-doc-action">Télécharger</a>
+        </div>
+        <div class="empty-docs" *ngIf="documents().length === 0">
+          Aucun document téléversé pour le moment.
+        </div>
+      </div>
+    </div>
+
+    <!-- Consultation History Section -->
+    <div class="section-card">
+      <h2>📋 Historique des consultations</h2>
+      <div class="historique-list">
+        <div class="consultation-card" *ngFor="let consultation of historique()" (click)="voirDetails(consultation.id)">
+          <div class="consultation-info">
+            <div class="date">{{ consultation.date | date: 'dd/MM/yyyy' }}</div>
+            <div class="medecin">{{ consultation.medecin }} <span class="specialite">({{ consultation.specialite }})</span></div>
+            <div class="motif">Motif: {{ consultation.motif }}</div>
+          </div>
+          <button class="btn-details">Détails →</button>
+        </div>
+
+        <div class="empty" *ngIf="historique().length === 0">
+          Aucune consultation enregistrée dans l'historique.
+        </div>
+      </div>
     </div>
   </div>
 </div>

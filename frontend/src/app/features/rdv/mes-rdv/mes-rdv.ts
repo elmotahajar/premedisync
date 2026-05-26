@@ -26,7 +26,7 @@ export class MesRdv implements OnInit {
   loadRendezVous(): void {
     this.rdvService.getAll().subscribe({
       next: (data) => {
-        this.rendezVous = data;
+        this.rendezVous = Array.isArray(data) ? data : (data.rendezVous || []);
         this.loading = false;
       },
       error: (err) => {

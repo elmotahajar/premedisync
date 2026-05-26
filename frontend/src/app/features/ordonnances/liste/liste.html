@@ -1,21 +1,52 @@
-<div class="container">
-  <div class="header">
+<div class="ordonnances-container">
+  <div class="page-header">
     <button class="btn-back" (click)="retour()">← Retour</button>
-    <h1>Mes Ordonnances</h1>
+    <div>
+      <h1>Mes Ordonnances</h1>
+      <p class="subtitle">Vos prescriptions médicales</p>
+    </div>
   </div>
 
-  <div class="loading" *ngIf="loading">Chargement...</div>
+  <!-- Spinner -->
+  <div class="spinner-wrap" *ngIf="loading()">
+    <div class="spinner"></div>
+    <span>Chargement de vos ordonnances...</span>
+  </div>
 
-  <div class="ordonnances-list">
-    <div class="card" *ngFor="let ordonnance of ordonnances">
-      <div class="date">{{ ordonnance.date }}</div>
-      <div class="medecin">{{ ordonnance.medecin }}</div>
-      <div class="medicaments">{{ ordonnance.medicaments }}</div>
-      <button class="btn-pdf" (click)="telechargerPdf(ordonnance.id)">📄 Télécharger PDF</button>
+  <!-- Error -->
+  <div class="alert danger" *ngIf="error()">⚠️ {{ error() }}</div>
+
+  <!-- List -->
+  <div class="ordonnances-list" *ngIf="!loading() && !error()">
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="ordonnances().length === 0">
+      <div class="empty-icon">💊</div>
+      <div class="empty-title">Aucune ordonnance</div>
+      <p class="empty-sub">Aucune prescription médicale n'a été émise pour vous.</p>
     </div>
 
-    <div class="empty" *ngIf="!loading && ordonnances.length === 0">
-      Aucune ordonnance trouvée.
+    <!-- Cards -->
+    <div class="card" *ngFor="let ord of ordonnances()">
+      <div class="card-left">
+        <div class="card-icon">💊</div>
+        <div class="card-info">
+          <div class="medecin">{{ ord.medecin }}</div>
+          <div class="date-text">Émise le {{ ord.date | date:'dd/MM/yyyy' }}</div>
+          <div class="medicaments">{{ ord.medicaments }}</div>
+          <div class="details-row">
+            <span class="detail-chip">🕐 {{ ord.duree || 'Durée N/A' }}</span>
+            <span class="detail-chip">📋 {{ ord.posologie || 'Posologie N/A' }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-right">
+        <span class="status-badge"
+          [class.active]="ord.statut === 'Active'"
+          [class.expired]="ord.statut !== 'Active'">
+          {{ ord.statut }}
+        </span>
+        <button class="btn-pdf" (click)="telechargerPdf(ord)">📄 PDF</button>
+      </div>
     </div>
   </div>
 </div>

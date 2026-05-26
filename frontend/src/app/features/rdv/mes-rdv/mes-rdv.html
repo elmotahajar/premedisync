@@ -5,21 +5,28 @@
   </div>
 
   <div class="message" *ngIf="message">{{ message }}</div>
-  <div class="loading" *ngIf="loading">Chargement...</div>
+  <div class="loading" *ngIf="loading">Chargement de vos rendez-vous...</div>
 
-  <div class="rdv-list">
-    <div class="rdv-card" *ngFor="let rdv of rendezVous">
+  <div class="rdv-list" *ngIf="!loading">
+    <div class="rdv-card" *ngFor="let rdv of rendezVous" [style.opacity]="rdv.statut === 'annulé' ? '0.5' : '1'">
       <div class="rdv-info">
-        <div class="date">{{ rdv.date }} à {{ rdv.heure }}</div>
-        <div class="medecin">{{ rdv.medecin }}</div>
-        <div class="motif">{{ rdv.motif }}</div>
+        <div class="date">{{ rdv.date | date: 'dd/MM/yyyy' }} à {{ rdv.heure }}</div>
+        <div class="medecin">{{ rdv.medecinNom || rdv.medecin || 'Dr. Martin' }} <span style="font-size: 12px; color: var(--text-muted);">({{ rdv.specialite || 'Généraliste' }})</span></div>
+        <div class="motif">Motif : {{ rdv.motif }}</div>
+        <div style="margin-top: 4px;">
+          <span style="font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 12px;"
+                [style.background-color]="rdv.statut === 'annulé' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'"
+                [style.color]="rdv.statut === 'annulé' ? '#fca5a5' : '#a7f3d0'">
+            {{ rdv.statut || 'confirmé' }}
+          </span>
+        </div>
       </div>
-      <div class="rdv-actions">
+      <div class="rdv-actions" *ngIf="rdv.statut !== 'annulé'">
         <button class="btn-annuler" (click)="annulerRdv(rdv.id)">Annuler</button>
       </div>
     </div>
 
-    <div class="empty" *ngIf="!loading && rendezVous.length === 0">
+    <div class="empty" *ngIf="rendezVous.length === 0">
       Aucun rendez-vous programmé.
     </div>
   </div>

@@ -1,54 +1,77 @@
-<div class="profil-container">
-  <div class="profil-card">
-    <div class="profil-header">
-      <div class="avatar">👤</div>
-      <h2>Mon Profil</h2>
-      <p>Modifier vos informations personnelles</p>
+<div class="parametres-container">
+  <div class="page-header">
+    <button class="btn-back" (click)="retour()">← Retour</button>
+    <div>
+      <h1>Paramètres du compte</h1>
+      <p class="subtitle">Gérez vos informations personnelles</p>
+    </div>
+  </div>
+
+  <!-- Spinner -->
+  <div class="spinner-wrap" *ngIf="loading()">
+    <div class="spinner"></div>
+    <span>Chargement de votre profil...</span>
+  </div>
+
+  <!-- Error state -->
+  <div class="alert danger" *ngIf="error() && !loading()">
+    <span>⚠️</span> {{ error() }}
+  </div>
+
+  <!-- Form -->
+  <div class="form-card" *ngIf="!loading()">
+    <div class="avatar-section">
+      <div class="avatar-circle">{{ form.prenom.charAt(0) | uppercase }}{{ form.nom.charAt(0) | uppercase }}</div>
+      <div>
+        <div class="avatar-name">{{ form.prenom }} {{ form.nom }}</div>
+        <div class="avatar-email">{{ form.email }}</div>
+      </div>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="soumettre()">
+    <div class="divider"></div>
+
+    <form (ngSubmit)="soumettre()">
       <div class="form-row">
         <div class="form-group">
-          <label>Nom</label>
-          <input formControlName="nom" type="text" placeholder="Votre nom" />
-          <span class="error" *ngIf="champInvalide('nom')">Nom requis</span>
+          <label for="prenom">Prénom</label>
+          <input id="prenom" type="text" [(ngModel)]="form.prenom" name="prenom" placeholder="Votre prénom" required />
         </div>
         <div class="form-group">
-          <label>Prénom</label>
-          <input formControlName="prenom" type="text" placeholder="Votre prénom" />
-          <span class="error" *ngIf="champInvalide('prenom')">Prénom requis</span>
+          <label for="nom">Nom</label>
+          <input id="nom" type="text" [(ngModel)]="form.nom" name="nom" placeholder="Votre nom" required />
         </div>
       </div>
 
       <div class="form-group">
-        <label>Email</label>
-        <input formControlName="email" type="email" placeholder="Votre email" />
-        <span class="error" *ngIf="champInvalide('email')">Email invalide</span>
+        <label for="email">Adresse e-mail</label>
+        <input id="email" type="email" [(ngModel)]="form.email" name="email" placeholder="Votre email" required />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="telephone">Téléphone</label>
+          <input id="telephone" type="tel" [(ngModel)]="form.telephone" name="telephone" placeholder="Votre numéro" />
+        </div>
+        <div class="form-group">
+          <label for="dateNaissance">Date de naissance</label>
+          <input id="dateNaissance" type="date" [(ngModel)]="form.dateNaissance" name="dateNaissance" />
+        </div>
       </div>
 
       <div class="form-group">
-        <label>Téléphone</label>
-        <input formControlName="telephone" type="tel" placeholder="Votre téléphone" />
-        <span class="error" *ngIf="champInvalide('telephone')">Téléphone requis</span>
+        <label for="adresse">Adresse</label>
+        <input id="adresse" type="text" [(ngModel)]="form.adresse" name="adresse" placeholder="Votre adresse" />
       </div>
 
-      <div class="form-group">
-        <label>Date de naissance</label>
-        <input formControlName="dateNaissance" type="date" />
-        <span class="error" *ngIf="champInvalide('dateNaissance')">Date requise</span>
-      </div>
+      <div class="alert success" *ngIf="successMessage()">✅ {{ successMessage() }}</div>
+      <div class="alert danger" *ngIf="error() && !loading()">⚠️ {{ error() }}</div>
 
-      <div class="form-group">
-        <label>Adresse</label>
-        <input formControlName="adresse" type="text" placeholder="Votre adresse" />
-        <span class="error" *ngIf="champInvalide('adresse')">Adresse requise</span>
-      </div>
-
-      <div class="success" *ngIf="successMessage">{{ successMessage }}</div>
-
-      <div class="buttons">
-        <button type="button" class="btn-retour" (click)="retour()">← Retour</button>
-        <button type="submit" class="btn-save">Enregistrer</button>
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="retour()">Annuler</button>
+        <button type="submit" class="btn-save" [disabled]="saving()">
+          <span *ngIf="saving()" class="btn-spinner"></span>
+          <span>{{ saving() ? 'Enregistrement...' : '💾 Enregistrer' }}</span>
+        </button>
       </div>
     </form>
   </div>

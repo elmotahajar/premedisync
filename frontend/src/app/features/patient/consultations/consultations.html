@@ -1,40 +1,58 @@
 <div class="consultations-container">
-  <div class="top-bar">
-    <button class="btn-retour" (click)="retour()">← Retour</button>
-    <h2>Historique des Consultations</h2>
+  <div class="page-header">
+    <button class="btn-back" (click)="retour()">← Retour</button>
+    <div>
+      <h1>Historique des Consultations</h1>
+      <p class="subtitle">Vos consultations médicales passées</p>
+    </div>
   </div>
 
-  <div class="consultations-list">
-    <div *ngIf="consultations.length === 0" class="empty">
-      Aucune consultation pour le moment.
+  <!-- Spinner -->
+  <div class="spinner-wrap" *ngIf="loading()">
+    <div class="spinner"></div>
+    <span>Chargement de vos consultations...</span>
+  </div>
+
+  <!-- Error -->
+  <div class="alert danger" *ngIf="error()">⚠️ {{ error() }}</div>
+
+  <!-- Content -->
+  <div *ngIf="!loading() && !error()">
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="historique().length === 0">
+      <div class="empty-icon">🩺</div>
+      <div class="empty-title">Aucune consultation</div>
+      <p class="empty-sub">Votre historique de consultations est vide pour le moment.</p>
     </div>
 
-    <div class="consultation-card" *ngFor="let consultation of consultations">
-      <div class="card-header" (click)="voirDetails(consultation)">
-        <div class="date-badge">
-          <span class="jour">{{ consultation.date.split('-')[2] }}</span>
-          <span class="mois">{{ getMois(consultation.date) }}</span>
+    <!-- List -->
+    <div class="consultations-list" *ngIf="historique().length > 0">
+      <div class="consultation-card" *ngFor="let c of historique()">
+        <div class="card-header" (click)="voirDetails(c)">
+          <div class="date-badge">
+            <span class="jour">{{ getJour(c.date) }}</span>
+            <span class="mois">{{ getMois(c.date) }}</span>
+          </div>
+          <div class="card-info">
+            <div class="medecin">{{ c.medecin }}</div>
+            <div class="specialite">{{ c.specialite }}</div>
+            <div class="motif" *ngIf="c.motif">{{ c.motif }}</div>
+          </div>
+          <div class="expand-icon">{{ consultationSelectionnee === c ? '▲' : '▼' }}</div>
         </div>
-        <div class="card-info">
-          <div class="medecin">{{ consultation.medecin }}</div>
-          <div class="specialite">{{ consultation.specialite }}</div>
-          <div class="motif">{{ consultation.motif }}</div>
-        </div>
-        <div class="expand-icon">
-          {{ consultationSelectionnee === consultation ? '▲' : '▼' }}
-        </div>
-      </div>
 
-      <div class="card-details" *ngIf="consultationSelectionnee === consultation">
-        <div class="detail-section">
-          <h4>📝 Compte rendu médical</h4>
-          <p>{{ consultation.compteRendu }}</p>
-        </div>
-        <div class="detail-section" *ngIf="consultation.ordonnanceUrl">
-          <h4>💊 Ordonnance</h4>
-          <button class="btn-ordonnance" (click)="telechargerOrdonnance(consultation)">
-            📄 Télécharger l'ordonnance (PDF)
-          </button>
+        <div class="card-details" *ngIf="consultationSelectionnee === c">
+          <div class="detail-row" *ngIf="c.compteRendu">
+            <h4>📝 Compte rendu médical</h4>
+            <p>{{ c.compteRendu }}</p>
+          </div>
+          <div class="detail-row" *ngIf="c.diagnostic">
+            <h4>🔍 Diagnostic</h4>
+            <p>{{ c.diagnostic }}</p>
+          </div>
+          <div class="detail-row no-data" *ngIf="!c.compteRendu && !c.diagnostic">
+            Aucun détail disponible pour cette consultation.
+          </div>
         </div>
       </div>
     </div>

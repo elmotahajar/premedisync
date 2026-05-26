@@ -28,12 +28,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
           <tbody>
             @for (c of consultations(); track c.id) {
               <tr>
-                <td style="font-weight: 600;">{{ c.patientNom || 'Patient' }}</td>
+                <td style="font-weight: 600;">{{ c.patientNom || c.patientName || 'Patient' }}</td>
                 <td>{{ c.dateHeure | date: 'dd/MM/yyyy à HH:mm' }}</td>
-                <td>{{ c.motif || 'Consultation de suivi' }}</td>
+                <td>{{ c.motif || c.reason || 'Consultation de suivi' }}</td>
                 <td>
                   <span class="admin-badge" [class.success]="c.statut === 'Confirmé'" [class.warning]="c.statut === 'En attente'">
-                    {{ c.statut || 'Confirmé' }}
+                    {{ c.statut || c.status || 'Confirmé' }}
                   </span>
                 </td>
                 <td style="text-align: right;">
@@ -46,7 +46,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
             @if (consultations().length === 0) {
               <tr>
                 <td colspan="5" style="text-align: center; padding: 24px; color: var(--text-muted);">
-                  Aucune consultation enregistrée.
+                  {{ chargement() ? '⏳ Chargement...' : 'Aucune consultation enregistrée.' }}
                 </td>
               </tr>
             }
@@ -59,20 +59,45 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 export class MedecinConsultationsComponent implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
+  
   consultations = signal<any[]>([]);
+  chargement = signal(false);
+  private apiUrl = 'http://localhost:3000/api';
 
   ngOnInit() {
+    this.chargerConsultations();
+  }
+
+  /**
+   * Charge les consultations du médecin via API
+   */
+  chargerConsultations() {
     const token = localStorage.getItem('token');
+    if (!token) return;
+
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    this.http.get('http://localhost:3000/api/medecin/patients-jour', { headers }).subscribe({
+    let medecinId: string | null = null;
+
+    // Extraire l'ID du médecin depuis le JWT
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      medecinId = payload.id || payload.userId;
+    } catch (e) {
+      console.error('Erreur décodage token:', e);
+    }
+
+    if (!medecinId) return;
+
+    this.chargement.set(true);
+
+    this.http.get(`${this.apiUrl}/consultations/medecin/${medecinId}`, { headers }).subscribe({
       next: (data: any) => {
-        this.consultations.set(Array.isArray(data) ? data : []);
+        this.consultations.set(Array.isArray(data) ? data : data?.consultations || []);
+        this.chargement.set(false);
       },
-      error: () => {
-        this.consultations.set([
-          { id: 1, patientNom: 'Jean Dupont', dateHeure: '2026-05-25T14:30:00', motif: 'Suivi grippe', statut: 'Confirmé' },
-          { id: 2, patientNom: 'Marie Lefebvre', dateHeure: '2026-05-25T15:00:00', motif: 'Tension', statut: 'Confirmé' }
-        ]);
+      error: (err) => {
+        console.error('Erreur chargement consultations:', err);
+        this.chargement.set(false);
       }
     });
   }

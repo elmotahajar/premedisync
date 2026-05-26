@@ -1,50 +1,83 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { PatientService } from '../../../core/services/patient.service';
 
 @Component({
   selector: 'app-profil',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './profil.html',
   styleUrls: ['./profil.css']
 })
-export class Profil {
-  private fb = inject(FormBuilder);
+export class Profil implements OnInit {
   private router = inject(Router);
+  private patientService = inject(PatientService);
 
-  successMessage = '';
+  loading = signal(true);
+  saving = signal(false);
+  error = signal<string | null>(null);
+  successMessage = signal('');
 
-  form = this.fb.group({
-    nom: ['Dupont', [Validators.required]],
-    prenom: ['Jean', [Validators.required]],
-    email: ['jean.dupont@email.com', [Validators.required, Validators.email]],
-    telephone: ['0612345678', [Validators.required]],
-    dateNaissance: ['1990-01-01', [Validators.required]],
-    adresse: ['12 rue de la Paix, Paris', [Validators.required]],
-  });
+  form = {
+    nom: '',
+    prenom: '',
+    email: '',
+    telephone: '',
+    dateNaissance: '',
+    adresse: ''
+  };
 
-  get f() { 
-    return this.form.controls; 
+  ngOnInit(): void {
+    this.loadProfil();
   }
 
-  champInvalide(champ: string): boolean {
-    const c = this.form.get(champ);
-    return !!(c?.invalid && (c.dirty || c.touched));
+  loadProfil(): void {
+    this.loading.set(true);
+    this.error.set(null);
+    this.patientService.getProfil().subscribe({
+      next: (data: any) => {
+        this.form = {
+          nom: data.nom || '',
+          prenom: data.prenom || '',
+          email: data.email || '',
+          telephone: data.telephone || '',
+          dateNaissance: data.dateNaissance ? data.dateNaissance.split('T')[0] : '',
+          adresse: data.adresse || ''
+        };
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('Erreur chargement profil:', err);
+        this.error.set('Impossible de charger votre profil.');
+        this.loading.set(false);
+      }
+    });
   }
 
   soumettre(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+    if (!this.form.nom || !this.form.prenom || !this.form.email) {
+      this.error.set('Nom, prénom et email sont obligatoires.');
       return;
     }
-    this.successMessage = 'Profil mis à jour avec succès !';
-    setTimeout(() => this.successMessage = '', 3000);
+    this.saving.set(true);
+    this.error.set(null);
+    this.patientService.updateProfil(this.form).subscribe({
+      next: () => {
+        this.successMessage.set('Profil mis à jour avec succès !');
+        this.saving.set(false);
+        setTimeout(() => this.successMessage.set(''), 4000);
+      },
+      error: (err) => {
+        console.error('Erreur mise à jour profil:', err);
+        this.error.set('Erreur lors de la sauvegarde. Veuillez réessayer.');
+        this.saving.set(false);
+      }
+    });
   }
 
   retour(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/patient/accueil']);
   }
 }

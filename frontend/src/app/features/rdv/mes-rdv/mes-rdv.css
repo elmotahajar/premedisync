@@ -1,9 +1,8 @@
-.mes-rdv-container {
-  min-height: 100vh;
-  background: #f0f4f8;
-  padding: 40px 20px;
-  max-width: 700px;
+.rdv-container {
+  max-width: 800px;
   margin: 0 auto;
+  padding: 8px 0 24px 0;
+  color: var(--text-primary);
 }
 
 .top-bar {
@@ -11,174 +10,130 @@
   align-items: center;
   gap: 16px;
   margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
 }
 
 .top-bar h2 {
-  color: #1a237e;
-  font-size: 22px;
+  font-size: 24px;
+  font-weight: 700;
   margin: 0;
 }
 
-.success {
-  background: #e8f5e9;
-  color: #2e7d32;
+.btn-retour {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn-retour:hover {
+  background: var(--sidebar-hover);
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+.message {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid #10b981;
+  color: #a7f3d0;
   padding: 12px;
   border-radius: 8px;
   text-align: center;
   margin-bottom: 16px;
-  font-size: 14px;
+}
+
+.loading {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 40px;
+  font-size: 16px;
+}
+
+.rdv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .rdv-card {
-  background: white;
+  background: #1e293b;
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 20px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.rdv-card.annule {
-  opacity: 0.5;
+.rdv-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  border-color: var(--sidebar-active);
 }
 
-.rdv-medecin {
+.rdv-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rdv-info .date {
+  font-size: 18px;
   font-weight: 600;
-  color: #1a237e;
-  margin-bottom: 6px;
+  color: var(--sidebar-active);
 }
 
-.rdv-date, .rdv-motif {
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 4px;
+.rdv-info .medecin {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
-.statut {
+.rdv-info .motif {
+  font-size: 13px;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.05);
+  padding: 4px 8px;
+  border-radius: 6px;
   display: inline-block;
-  margin-top: 8px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
+  align-self: flex-start;
 }
-
-.statut.confirmé { background: #e8f5e9; color: #2e7d32; }
-.statut.en\ attente { background: #fff8e1; color: #f57f17; }
-.statut.annulé { background: #ffebee; color: #c62828; }
 
 .rdv-actions {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.btn-modifier {
-  padding: 8px 16px;
-  background: #3f51b5;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 13px;
+  align-items: center;
+  gap: 12px;
 }
 
 .btn-annuler {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
   padding: 8px 16px;
-  background: #ffebee;
-  color: #c62828;
-  border: 1px solid #ef9a9a;
   border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
+  transition: all 0.2s;
 }
 
-.btn-retour {
-  padding: 8px 20px;
-  border: 1.5px solid #3f51b5;
-  border-radius: 8px;
-  background: white;
-  color: #3f51b5;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.btn-save {
-  padding: 8px 24px;
-  background: #3f51b5;
+.btn-annuler:hover {
+  background: #ef4444;
   color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
 }
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
-}
-
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  width: 100%;
-  max-width: 400px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-}
-
-.modal h3 {
-  color: #1a237e;
-  margin-bottom: 8px;
-}
-
-.modal p {
-  color: #666;
-  font-size: 14px;
-  margin-bottom: 20px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 16px;
-}
-
-.form-group label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #444;
-  margin-bottom: 6px;
-}
-
-.form-group input {
-  padding: 10px 14px;
-  border: 1.5px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 24px;
-}
-
-@media (max-width: 480px) {
-  .rdv-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .rdv-actions {
-    flex-direction: row;
-    width: 100%;
-  }
+.empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 48px;
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  background: rgba(30, 41, 59, 0.5);
+  font-size: 15px;
 }

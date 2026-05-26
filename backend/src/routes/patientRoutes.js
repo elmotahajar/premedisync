@@ -6,12 +6,14 @@ const {
   getDossier,
   getOrdonnances,
   getHistorique,
-  uploadDocument
+  uploadDocument,
+  getMedecins
 } = require('../controllers/patientController');
 
 router.get('/dossier', auth, getDossier);
 router.get('/ordonnances', auth, getOrdonnances);
 router.get('/historique', auth, getHistorique);
 router.post('/documents', auth, upload.single('document'), uploadDocument);
+router.get('/medecins', auth, getMedecins);
 
 module.exports = router;

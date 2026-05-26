@@ -61,6 +61,28 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
+  getPatientId(): number | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.id || null;
+    } catch {
+      return null;
+    }
+  }
+
+  getPrenom(): string {
+    const token = this.getToken();
+    if (!token) return 'Patient';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.prenom || 'Patient';
+    } catch {
+      return 'Patient';
+    }
+  }
+
   getRole(): string | null {
     return localStorage.getItem('role');
   }
