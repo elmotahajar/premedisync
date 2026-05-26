@@ -16,57 +16,54 @@
       <div class="message-succes">{{ messageSucces() }}</div>
     }
 
+    @if (messageErreur()) {
+      <div class="message-erreur">{{ messageErreur() }}</div>
+    }
+
     @if (afficherFormulaire()) {
       <div class="formulaire">
         <h3>Nouvelle Feuille de Soins</h3>
         <div class="form-grid">
           <div class="form-group">
             <label>Patient</label>
-            <input type="text" [(ngModel)]="nouvelleFeuille.patient" placeholder="Nom du patient" />
-          </div>
-          <div class="form-group">
-            <label>Médecin</label>
-            <select [(ngModel)]="nouvelleFeuille.medecin">
-              <option value="">-- Choisir --</option>
-              <option value="Dr. Alaoui">Dr. Alaoui</option>
-              <option value="Dr. Benali">Dr. Benali</option>
-              <option value="Dr. Idrissi">Dr. Idrissi</option>
+            <select [(ngModel)]="nouvelleFeuille.patientId">
+              <option [ngValue]="0">-- Choisir un patient --</option>
+              @for (patient of patients(); track patient.id) {
+                <option [ngValue]="patient.id">{{ patient.prenom }} {{ patient.nom }}</option>
+              }
             </select>
           </div>
           <div class="form-group">
-            <label>Date</label>
-            <input type="date" [(ngModel)]="nouvelleFeuille.date" />
-          </div>
-          <div class="form-group">
-            <label>Mutuelle</label>
-            <select [(ngModel)]="nouvelleFeuille.mutuelle">
-              <option value="">-- Choisir --</option>
-              <option value="CNSS">CNSS</option>
-              <option value="CNOPS">CNOPS</option>
-              <option value="FAR">FAR</option>
-              <option value="Aucune">Aucune</option>
+            <label>Médecin</label>
+            <select [(ngModel)]="nouvelleFeuille.medecinId">
+              <option [ngValue]="0">-- Choisir un médecin --</option>
+              @for (medecin of medecins(); track medecin.id) {
+                <option [ngValue]="medecin.id">Dr. {{ medecin.prenom }} {{ medecin.nom }}</option>
+              }
             </select>
           </div>
           <div class="form-group">
             <label>Code Acte</label>
-            <select [(ngModel)]="nouvelleFeuille.codeActe">
-              <option value="">-- Choisir --</option>
-              <option value="C">C — Consultation générale</option>
-              <option value="CS">CS — Consultation spécialisée</option>
-              <option value="B">B — Biologie</option>
-              <option value="Z">Z — Radiologie</option>
-            </select>
+            <input type="text" [(ngModel)]="nouvelleFeuille.codeActe" placeholder="Ex: C" />
           </div>
           <div class="form-group">
             <label>Description Acte</label>
             <input type="text" [(ngModel)]="nouvelleFeuille.descriptionActe" placeholder="Ex: Prise de sang" />
           </div>
           <div class="form-group">
-            <label>Montant (MAD)</label>
+            <label>Quantité</label>
+            <input type="number" min="1" [(ngModel)]="nouvelleFeuille.quantiteActe" placeholder="1" />
+          </div>
+          <div class="form-group">
+            <label>Prix unitaire (MAD)</label>
             <input type="number" [(ngModel)]="nouvelleFeuille.montantActe" placeholder="000" />
           </div>
+          <div class="form-group">
+            <label>Observations</label>
+            <input type="text" [(ngModel)]="nouvelleFeuille.observations" placeholder="Observations optionnelles" />
+          </div>
         </div>
-        <button class="btn-confirmer" (click)="ajouterFeuille()">Créer la feuille</button>
+        <button class="btn-confirmer" [disabled]="chargement()" (click)="ajouterFeuille()">Créer la feuille</button>
       </div>
     }
 
@@ -77,10 +74,9 @@
             <h3>{{ feuille.patient }}</h3>
             <p>👨‍⚕️ {{ feuille.medecin }}</p>
             <p>🗓️ {{ feuille.date }}</p>
-            <p>🏥 {{ feuille.mutuelle }}</p>
             <div class="actes">
               @for (acte of feuille.actes; track acte.code) {
-                <span class="acte-badge">{{ acte.code }} — {{ acte.description }} ({{ acte.montant }} MAD)</span>
+                <span class="acte-badge">{{ acte.code }} — {{ acte.libelle }} ({{ acte.quantite || 1 }} x {{ acte.prixUnitaire || 0 }} MAD)</span>
               }
             </div>
           </div>
@@ -89,7 +85,7 @@
             <span [class]="'statut ' + feuille.statut">{{ feuille.statut }}</span>
           </div>
           <div class="actions">
-            @if (feuille.statut === 'en attente') {
+            @if (feuille.statut === 'BROUILLON') {
               <button class="btn-transmettre" (click)="transmettre(feuille.id)">📤 Transmettre</button>
             }
             <button class="btn-pdf" (click)="exporterPDF(feuille)">📄 PDF</button>

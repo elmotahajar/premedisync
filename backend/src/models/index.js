@@ -19,10 +19,15 @@ Secretaire.belongsTo(User,     { foreignKey: 'id_utilisateur' });
 Administrateur.belongsTo(User, { foreignKey: 'id_utilisateur' });
 
 RendezVous.belongsTo(Patient,  { foreignKey: 'patientId' });
-Facture.belongsTo(Secretaire,  { foreignKey: 'id_secretaire' });
+Facture.belongsTo(User, { foreignKey: 'patientId', as: 'patient' });
+Facture.belongsTo(User, { foreignKey: 'secretaireId', as: 'secretaire' });
+FeuilleSoins.belongsTo(User, { foreignKey: 'patientId', as: 'patient' });
+FeuilleSoins.belongsTo(User, { foreignKey: 'medecinId', as: 'medecin' });
+FeuilleSoins.belongsTo(User, { foreignKey: 'secretaireId', as: 'secretaire' });
 
 module.exports = {
   sequelize,
+  User,
   Utilisateur: User,
   Patient,
   Medecin,

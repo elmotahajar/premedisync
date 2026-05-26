@@ -71,6 +71,8 @@ exports.createRendezVous = async (req, res) => {
       estPourTiers: false
     });
 
+    console.info('Rendez-vous créé:', { id: rdv.id, patientId: rdv.patientId, medecinId: rdv.medecinId, dateHeure: rdv.dateHeure });
+
     const { date: formattedDate, heure: formattedHeure } = normalizeDateHeure(rdv.dateHeure);
 
     try {
@@ -278,6 +280,8 @@ exports.createRendezVousTiers = async (req, res) => {
       duree,
       estPourTiers: true
     });
+
+    console.info('Rendez-vous (tiers) créé:', { id: rdv.id, patientId: rdv.patientId, medecinId: rdv.medecinId, dateHeure: rdv.dateHeure });
 
     const { date: formattedDate, heure: formattedHeure } = normalizeDateHeure(rdv.dateHeure);
 

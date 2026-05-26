@@ -32,7 +32,6 @@ export class Secretaires implements OnInit {
   editMode = false;
   currentSecretaire: any = this.getEmptySecretaire();
   message = '';
-  tempPassword = '';
 
   getHeaders() {
     const token = localStorage.getItem('token');
@@ -54,7 +53,7 @@ export class Secretaires implements OnInit {
   }
 
   getEmptySecretaire() {
-    return { nom: '', prenom: '', email: '', telephone: '', role: 'secretaire', actif: true };
+    return { nom: '', prenom: '', email: '', telephone: '', password: '', role: 'secretaire', actif: true };
   }
 
   ajouter() {
@@ -107,9 +106,11 @@ export class Secretaires implements OnInit {
       this.http.post(`${this.apiUrl}/personnel`, { ...this.currentSecretaire, role: 'secretaire' }, { headers: this.getHeaders() }).subscribe({
         next: (res: any) => {
           this.chargerSecretaires();
-          this.tempPassword = res.tempPassword;
+          this.message = res.message || 'Secrétaire ajoutée';
           this.showModal = false;
+          this.currentSecretaire = this.getEmptySecretaire();
           this.cdr.detectChanges();
+          setTimeout(() => this.message = '', 3000);
         },
         error: (err) => {
           this.message = err.error?.message || 'Erreur lors de l\'ajout';
@@ -121,6 +122,7 @@ export class Secretaires implements OnInit {
 
   fermerModal() {
     this.showModal = false;
+    this.currentSecretaire = this.getEmptySecretaire();
   }
 
   retour() {

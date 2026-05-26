@@ -35,7 +35,6 @@ export class Medecins implements OnInit {
   editMode = false;
   currentMedecin: any = this.getEmptyMedecin();
   message = '';
-  tempPassword = '';
 
   getHeaders() {
     const token = localStorage.getItem('token');
@@ -57,7 +56,7 @@ export class Medecins implements OnInit {
   }
 
   getEmptyMedecin() {
-    return { nom: '', prenom: '', specialite: '', email: '', telephone: '', role: 'medecin', actif: true };
+    return { nom: '', prenom: '', specialite: '', email: '', telephone: '', password: '', role: 'medecin', actif: true };
   }
 
   ajouter() {
@@ -110,9 +109,11 @@ export class Medecins implements OnInit {
       this.http.post(`${this.apiUrl}/personnel`, { ...this.currentMedecin, role: 'medecin' }, { headers: this.getHeaders() }).subscribe({
         next: (res: any) => {
           this.chargerMedecins();
-          this.tempPassword = res.tempPassword;
+          this.message = res.message || 'Médecin ajouté';
           this.showModal = false;
+          this.currentMedecin = this.getEmptyMedecin();
           this.cdr.detectChanges();
+          setTimeout(() => this.message = '', 3000);
         },
         error: (err) => {
           this.message = err.error?.message || 'Erreur lors de l\'ajout';
@@ -124,6 +125,7 @@ export class Medecins implements OnInit {
 
   fermerModal() {
     this.showModal = false;
+    this.currentMedecin = this.getEmptyMedecin();
   }
 
   retour() {

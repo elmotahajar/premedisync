@@ -1,4 +1,6 @@
-const { User, Patient, RendezVous, Facture, FeuilleSoins } = require('../models');
+const models = require('../models');
+const User = models.User || models.Utilisateur;
+const { Patient, RendezVous, Facture, FeuilleSoins } = models;
 const bcrypt = require('bcryptjs');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
@@ -14,7 +16,11 @@ const path = require('path');
  */
 exports.creerComptePatient = async (req, res) => {
   try {
-    const { nom, prenom, email, telephone, adresse, dateNaissance, numeroSecurite } = req.body;
+    const { nom, prenom, email, telephone, adresse, dateNaissance, numeroSecurite, password } = req.body;
+
+    if (!nom || !prenom || !email || !password) {
+      return res.status(400).json({ message: 'Nom, prénom, email et mot de passe sont requis.' });
+    }
 
     // Vérification unicité email
     const existingUser = await User.findOne({ where: { email } });
@@ -22,9 +28,7 @@ exports.creerComptePatient = async (req, res) => {
       return res.status(409).json({ message: 'Un compte avec cet email existe déjà.' });
     }
 
-    // Mot de passe temporaire (le patient devra le changer à la première connexion)
-    const tempPassword = Math.random().toString(36).slice(-8) + 'A1!';
-    const hashedPassword = await bcrypt.hash(tempPassword, 12);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     const patient = await User.create({
         nom,
@@ -56,8 +60,6 @@ exports.creerComptePatient = async (req, res) => {
       );
     }
 
-    // TODO: envoyer l'email avec le mot de passe temporaire (nodemailer)
-
     return res.status(201).json({
       message: 'Compte patient créé avec succès.',
       patient: {
@@ -66,8 +68,6 @@ exports.creerComptePatient = async (req, res) => {
         prenom: patient.prenom,
         email: patient.email,
       },
-      // En développement on retourne le mot de passe temporaire (à supprimer en prod)
-      tempPassword,
     });
   } catch (error) {
     console.error('creerComptePatient:', error);
@@ -104,6 +104,33 @@ exports.listerPatients = async (req, res) => {
     return res.json(patients);
   } catch (error) {
     console.error('listerPatients:', error);
+    return res.status(500).json({ message: 'Erreur serveur.', error: error.message });
+  }
+};
+
+/**
+ * GET /secretaire/medecins
+ * Lister les médecins pour alimenter les formulaires secrétaire.
+ */
+exports.listerMedecins = async (req, res) => {
+  try {
+    const medecins = await User.findAll({
+      where: { role: 'medecin' },
+      attributes: ['id', 'nom', 'prenom', 'email', 'telephone'],
+      order: [['nom', 'ASC']],
+    });
+
+    return res.json(
+      medecins.map((m) => ({
+        id: m.id,
+        nom: m.nom,
+        prenom: m.prenom,
+        email: m.email,
+        telephone: m.telephone || '',
+      }))
+    );
+  } catch (error) {
+    console.error('listerMedecins:', error);
     return res.status(500).json({ message: 'Erreur serveur.', error: error.message });
   }
 };
@@ -179,15 +206,33 @@ exports.listerFeuilleSoins = async (req, res) => {
     if (req.query.patientId) where.patientId = req.query.patientId;
     if (req.query.statut) where.statut = req.query.statut;
 
-    const feuilles = await FeuilleSoins.findAll({
-      where,
-      include: [
-        { model: User, as: 'patient', attributes: ['id', 'nom', 'prenom'] },
-        { model: User, as: 'medecin', attributes: ['id', 'nom', 'prenom'] },
-      ],
-      order: [['date', 'DESC']],
-    });
-    return res.json(feuilles);
+    let feuilles = [];
+    try {
+      feuilles = await FeuilleSoins.findAll({
+        where,
+        include: [
+          { model: User, as: 'patient', attributes: ['id', 'nom', 'prenom'] },
+          { model: User, as: 'medecin', attributes: ['id', 'nom', 'prenom'] },
+        ],
+        order: [['date', 'DESC']],
+      });
+      return res.json(feuilles);
+    } catch (includeError) {
+      // Fallback if include metadata is not ready in current runtime process.
+      feuilles = await FeuilleSoins.findAll({ where, order: [['date', 'DESC']] });
+      const mapped = await Promise.all(feuilles.map(async (f) => {
+        const [patientUser, medecinUser] = await Promise.all([
+          User.findByPk(f.patientId, { attributes: ['id', 'nom', 'prenom'] }),
+          User.findByPk(f.medecinId, { attributes: ['id', 'nom', 'prenom'] }),
+        ]);
+        return {
+          ...f.toJSON(),
+          patient: patientUser,
+          medecin: medecinUser,
+        };
+      }));
+      return res.json(mapped);
+    }
   } catch (error) {
     console.error('listerFeuilleSoins:', error);
     return res.status(500).json({ message: 'Erreur serveur.', error: error.message });
@@ -245,14 +290,30 @@ exports.listerFactures = async (req, res) => {
     if (req.query.patientId) where.patientId = req.query.patientId;
     if (req.query.statut) where.statut = req.query.statut;
 
-    const factures = await Facture.findAll({
-      where,
-      include: [
-        { model: User, as: 'patient', attributes: ['id', 'nom', 'prenom', 'email'] },
-      ],
-      order: [['dateEmission', 'DESC']],
-    });
-    return res.json(factures);
+    let factures = [];
+    try {
+      factures = await Facture.findAll({
+        where,
+        include: [
+          { model: User, as: 'patient', attributes: ['id', 'nom', 'prenom', 'email'] },
+        ],
+        order: [['dateEmission', 'DESC']],
+      });
+      return res.json(factures);
+    } catch (includeError) {
+      // Fallback if include metadata is not ready in current runtime process.
+      factures = await Facture.findAll({ where, order: [['dateEmission', 'DESC']] });
+      const mapped = await Promise.all(factures.map(async (f) => {
+        const patientUser = await User.findByPk(f.patientId, {
+          attributes: ['id', 'nom', 'prenom', 'email']
+        });
+        return {
+          ...f.toJSON(),
+          patient: patientUser,
+        };
+      }));
+      return res.json(mapped);
+    }
   } catch (error) {
     console.error('listerFactures:', error);
     return res.status(500).json({ message: 'Erreur serveur.', error: error.message });

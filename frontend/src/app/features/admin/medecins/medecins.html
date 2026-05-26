@@ -7,12 +7,6 @@
 
   <div class="message" *ngIf="message">{{ message }}</div>
 
-  <!-- Mot de passe temporaire -->
-  <div class="temp-password" *ngIf="tempPassword">
-    <span>✅ Médecin ajouté ! Mot de passe temporaire : <strong>{{ tempPassword }}</strong> — Communiquez-le au médecin !</span>
-    <button (click)="tempPassword = ''">✕</button>
-  </div>
-
   <table class="table">
     <thead>
       <tr>
@@ -54,6 +48,7 @@
         </select>
         <input class="admin-input" placeholder="Email" type="email" [(ngModel)]="currentMedecin.email">
         <input class="admin-input" placeholder="Téléphone" [(ngModel)]="currentMedecin.telephone">
+        <input *ngIf="!editMode" class="admin-input" placeholder="Mot de passe" type="password" [(ngModel)]="currentMedecin.password">
       </div>
       <div class="modal-footer">
         <button class="cancel" type="button" (click)="fermerModal()">Annuler</button>

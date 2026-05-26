@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');
+const sequelize = require('../config');
  
 const FeuilleSoins = sequelize.define('FeuilleSoins', {
   id: {
@@ -10,22 +10,22 @@ const FeuilleSoins = sequelize.define('FeuilleSoins', {
   patientId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: { model: 'Users', key: 'id' },
+    references: { model: 'utilisateur', key: 'id' },
   },
   medecinId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: { model: 'Users', key: 'id' },
+    references: { model: 'utilisateur', key: 'id' },
   },
   rendezVousId: {
     type: DataTypes.INTEGER,
     allowNull: true,
-    references: { model: 'RendezVous', key: 'id' },
+    references: { model: 'rendezvous', key: 'id' },
   },
   secretaireId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: { model: 'Users', key: 'id' },
+    references: { model: 'utilisateur', key: 'id' },
   },
   date: {
     type: DataTypes.DATEONLY,
@@ -50,7 +50,7 @@ const FeuilleSoins = sequelize.define('FeuilleSoins', {
     allowNull: true,
   },
 }, {
-  tableName: 'FeuilleSoins',
+  tableName: 'feuillesoins',
   timestamps: true,
 });
  

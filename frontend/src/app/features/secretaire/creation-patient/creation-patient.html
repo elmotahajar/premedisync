@@ -16,6 +16,10 @@
       <div class="message-succes">{{ messageSucces() }}</div>
     }
 
+    @if (messageErreur()) {
+      <div class="message-erreur">{{ messageErreur() }}</div>
+    }
+
     @if (afficherFormulaire()) {
       <div class="formulaire">
         <h3>Nouveau Patient</h3>
@@ -39,6 +43,10 @@
           <div class="form-group">
             <label>Email</label>
             <input type="email" [(ngModel)]="nouveauPatient.email" placeholder="email@exemple.com" />
+          </div>
+          <div class="form-group">
+            <label>Mot de passe</label>
+            <input type="password" [(ngModel)]="nouveauPatient.password" placeholder="Saisir un mot de passe" />
           </div>
           <div class="form-group">
             <label>Adresse</label>

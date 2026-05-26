@@ -11,6 +11,7 @@ router.use(authorizeRoles('secretaire', 'admin'));
 // ── Gestion des patients ──────────────────────────────────────────────────────
 router.post('/patients', secretaireController.creerComptePatient);
 router.get('/patients', secretaireController.listerPatients);
+router.get('/medecins', secretaireController.listerMedecins);
 
 // ── Feuilles de soins ─────────────────────────────────────────────────────────
 router.post('/feuilles-soins', secretaireController.creerFeuilleSoins);

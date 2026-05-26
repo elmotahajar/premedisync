@@ -226,15 +226,18 @@ exports.listerPersonnel = async (req, res) => {
 exports.creerPersonnel = async (req, res) => {
   console.log('📥 creerPersonnel body:', req.body);
   try {
-    const { nom, prenom, email, role, telephone } = req.body;
+    const { nom, prenom, email, role, telephone, password } = req.body;
+
+    if (!nom || !prenom || !email || !password) {
+      return res.status(400).json({ message: 'Nom, prénom, email et mot de passe sont obligatoires.' });
+    }
 
     const existing = await User.findOne({ where: { email } });
     if (existing) {
       return res.status(409).json({ message: 'Un compte avec cet email existe déjà.' });
     }
 
-    const tempPassword = Math.random().toString(36).slice(-8) + 'Med1!';
-    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       nom,
@@ -246,7 +249,6 @@ exports.creerPersonnel = async (req, res) => {
 
     return res.status(201).json({
       message: `Compte ${role} créé avec succès.`,
-      tempPassword,
       user: {
         id: user.id,
         nom: user.nom,

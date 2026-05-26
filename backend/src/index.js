@@ -87,8 +87,44 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Erreur serveur interne' });
 });
 
+const normaliserContraintesTablesSecretaire = async () => {
+  const qi = sequelize.getQueryInterface();
+  const rawTables = await qi.showAllTables();
+  const tables = rawTables.map((table) =>
+    typeof table === 'string' ? table : table.tableName
+  );
+
+  const resolveTable = (expected) =>
+    tables.find((name) => name.toLowerCase() === expected.toLowerCase());
+
+  const tablesToNormalize = ['feuillesoins', 'factures'];
+
+  for (const expectedName of tablesToNormalize) {
+    const tableName = resolveTable(expectedName);
+    if (!tableName) continue;
+
+    const [constraints] = await sequelize.query(
+      `
+        SELECT CONSTRAINT_NAME
+        FROM information_schema.TABLE_CONSTRAINTS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = :tableName
+          AND CONSTRAINT_TYPE = 'FOREIGN KEY'
+      `,
+      { replacements: { tableName } }
+    );
+
+    for (const row of constraints) {
+      await sequelize.query(
+        `ALTER TABLE \`${tableName}\` DROP FOREIGN KEY \`${row.CONSTRAINT_NAME}\``
+      );
+    }
+  }
+};
+
 // DB sync + start
-sequelize.sync({ alter: true })
+normaliserContraintesTablesSecretaire()
+  .then(() => sequelize.sync({ alter: true }))
   .then(() => {
     console.log('✅ Base de données connectée');
     const PORT = process.env.PORT || 3000;

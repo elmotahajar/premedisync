@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { RdvService } from '../../../core/services/rdv.service';
-import { BillingService } from '../../../core/services/billing.service';
+import { SecretaireService } from '../../../core/services/secretaire';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -15,7 +15,7 @@ import { catchError } from 'rxjs/operators';
 })
 export class SecretaireAccueilComponent implements OnInit {
   private rdvService = inject(RdvService);
-  private billingService = inject(BillingService);
+  private secretaireService = inject(SecretaireService);
 
   loading = signal(true);
 
@@ -35,11 +35,11 @@ export class SecretaireAccueilComponent implements OnInit {
   loadData() {
     forkJoin({
       rdvs: this.rdvService.getAll().pipe(catchError(() => of([]))),
-      invoices: this.billingService.getAllInvoices().pipe(catchError(() => of({ invoices: [] })))
+      invoices: this.secretaireService.listerFactures().pipe(catchError(() => of([])))
     }).subscribe({
       next: (res: any) => {
         const rdvs = Array.isArray(res.rdvs) ? res.rdvs : [];
-        const invoices = res.invoices?.invoices || [];
+        const invoices = Array.isArray(res.invoices) ? res.invoices : [];
 
         // Compute KPIs
         const todayStr = new Date().toDateString();
@@ -49,8 +49,11 @@ export class SecretaireAccueilComponent implements OnInit {
         this.rdvConfirmesCount.set(rdvs.filter((r: any) => r.statut?.toLowerCase() === 'confirmé' || r.statut?.toLowerCase() === 'confirme' || r.statut?.toLowerCase() === 'confirmed').length);
         this.rdvEnAttenteCount.set(rdvs.filter((r: any) => r.statut?.toLowerCase() === 'en attente' || r.statut?.toLowerCase() === 'pending').length);
         
-        const unpaid = invoices.filter((i: any) => i.status?.toLowerCase() === 'unpaid' || i.status?.toLowerCase() === 'impayé' || i.status?.toLowerCase() === 'impayee');
-        this.facturesImpayeesCount.set(unpaid.length || 3);
+        const unpaid = invoices.filter((i: any) => {
+          const statut = String(i.statut || i.status || '').toLowerCase();
+          return statut === 'en_attente' || statut === 'impayee' || statut === 'impayé' || statut === 'unpaid';
+        });
+        this.facturesImpayeesCount.set(unpaid.length);
 
         // Set recent appointments
         this.recentRdv.set(rdvs.slice(0, 5));

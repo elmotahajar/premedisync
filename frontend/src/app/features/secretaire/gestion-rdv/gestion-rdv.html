@@ -16,17 +16,35 @@
       <div class="message-succes">{{ messageSucces() }}</div>
     }
 
+    @if (messageErreur()) {
+      <div class="message-erreur">{{ messageErreur() }}</div>
+    }
+
     @if (afficherFormulaire()) {
       <div class="formulaire">
         <h3>{{ modeEdition() ? 'Modifier le Rendez-vous' : 'Nouveau Rendez-vous' }}</h3>
         <div class="form-grid">
           <div class="form-group">
             <label>Patient</label>
-            <input type="text" [(ngModel)]="nouveauRdv.patient" placeholder="Nom du patient" />
+            <select [(ngModel)]="nouveauRdv.patientId">
+              <option [ngValue]="0">-- Choisir un patient --</option>
+              @for (patient of patients(); track patient.id) {
+                <option [ngValue]="patient.id">{{ patient.prenom }} {{ patient.nom }}</option>
+              }
+            </select>
           </div>
           <div class="form-group">
             <label>Médecin</label>
-            <input type="text" [(ngModel)]="nouveauRdv.medecin" placeholder="Dr. Nom" />
+            <select [(ngModel)]="nouveauRdv.medecinId">
+              <option [ngValue]="0">-- Choisir un médecin --</option>
+              @for (medecin of medecins(); track medecin.id) {
+                <option [ngValue]="medecin.id">Dr. {{ medecin.prenom }} {{ medecin.nom }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Motif</label>
+            <input type="text" [(ngModel)]="nouveauRdv.motif" placeholder="Motif de consultation" />
           </div>
           <div class="form-group">
             <label>Date</label>
@@ -38,7 +56,7 @@
           </div>
         </div>
         <div class="form-actions">
-          <button class="btn-confirmer" (click)="ajouterOuModifierRdv()">
+          <button class="btn-confirmer" [disabled]="chargement()" (click)="ajouterOuModifierRdv()">
             {{ modeEdition() ? 'Enregistrer les modifications' : 'Confirmer le RDV' }}
           </button>
           @if (modeEdition()) {

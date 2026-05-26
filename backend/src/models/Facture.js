@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');
+const sequelize = require('../config');
 
 const Facture = sequelize.define('Facture', {
   id: {
@@ -11,19 +11,19 @@ const Facture = sequelize.define('Facture', {
   patientId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: { model: 'Users', key: 'id' },
+    references: { model: 'utilisateur', key: 'id' },
   },
   // Lien vers le rendez-vous concerné
   rendezVousId: {
     type: DataTypes.INTEGER,
     allowNull: true,
-    references: { model: 'RendezVous', key: 'id' },
+    references: { model: 'rendezvous', key: 'id' },
   },
   // Lien vers la secrétaire qui a émis la facture
   secretaireId: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    references: { model: 'Users', key: 'id' },
+    references: { model: 'utilisateur', key: 'id' },
   },
   montantTotal: {
     type: DataTypes.FLOAT,
@@ -60,7 +60,7 @@ const Facture = sequelize.define('Facture', {
     allowNull: true,
   },
 }, {
-  tableName: 'Factures',
+  tableName: 'factures',
   timestamps: true,
 });
 

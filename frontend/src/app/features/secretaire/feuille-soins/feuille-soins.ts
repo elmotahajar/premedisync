@@ -1,21 +1,30 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { SecretaireService } from '../../../core/services/secretaire';
 
 interface FeuilleSoinsData {
   id: number;
+  patientId: number;
   patient: string;
+  medecinId: number;
   medecin: string;
   date: string;
   actes: ActeSoins[];
-  mutuelle: string;
-  statut: 'transmise' | 'en attente' | 'remboursée';
+  statut: 'TRANSMISE' | 'BROUILLON' | 'VALIDEE';
 }
 
 interface ActeSoins {
   code: string;
-  description: string;
-  montant: number;
+  libelle: string;
+  quantite: number;
+  prixUnitaire: number;
+}
+
+interface PersonOption {
+  id: number;
+  nom: string;
+  prenom: string;
 }
 
 @Component({
@@ -24,77 +33,126 @@ interface ActeSoins {
   templateUrl: './feuille-soins.html',
   styleUrl: './feuille-soins.css',
 })
-export class FeuilleSOins {
-  feuilles = signal<FeuilleSoinsData[]>([
-    {
-      id: 1,
-      patient: 'Ahmed Benali',
-      medecin: 'Dr. Alaoui',
-      date: '2026-05-20',
-      actes: [
-        { code: 'C', description: 'Consultation générale', montant: 250 },
-        { code: 'B', description: 'Prise de sang', montant: 100 }
-      ],
-      mutuelle: 'CNSS',
-      statut: 'transmise'
-    },
-    {
-      id: 2,
-      patient: 'Fatima Zahra',
-      medecin: 'Dr. Idrissi',
-      date: '2026-05-21',
-      actes: [
-        { code: 'CS', description: 'Consultation spécialisée', montant: 400 }
-      ],
-      mutuelle: 'CNOPS',
-      statut: 'en attente'
-    },
-  ]);
+export class FeuilleSOins implements OnInit {
+  private secretaireService = inject(SecretaireService);
+
+  feuilles = signal<FeuilleSoinsData[]>([]);
+  patients = signal<PersonOption[]>([]);
+  medecins = signal<PersonOption[]>([]);
 
   nouvelleFeuille = {
-    patient: '',
-    medecin: '',
-    date: '',
-    mutuelle: '',
+    patientId: 0,
+    medecinId: 0,
     codeActe: '',
     descriptionActe: '',
-    montantActe: 0
+    quantiteActe: 1,
+    montantActe: 0,
+    observations: ''
   };
 
   afficherFormulaire = signal(false);
   messageSucces = signal('');
+  messageErreur = signal('');
+  chargement = signal(false);
+
+  ngOnInit(): void {
+    this.chargerDonnees();
+  }
+
+  chargerDonnees(): void {
+    this.chargerPatients();
+    this.chargerMedecins();
+    this.chargerFeuilles();
+  }
+
+  chargerPatients(): void {
+    this.secretaireService.listerPatients().subscribe({
+      next: (data) => this.patients.set(data),
+      error: () => this.messageErreur.set('Erreur lors du chargement des patients')
+    });
+  }
+
+  chargerMedecins(): void {
+    this.secretaireService.listerMedecins().subscribe({
+      next: (data) => this.medecins.set(data),
+      error: () => this.messageErreur.set('Erreur lors du chargement des médecins')
+    });
+  }
+
+  chargerFeuilles(): void {
+    this.secretaireService.listerFeuillesSoins().subscribe({
+      next: (data: any[]) => {
+        const mapped = (data || []).map((f: any) => ({
+          id: f.id,
+          patientId: Number(f.patientId),
+          patient: f.patient ? `${f.patient.prenom} ${f.patient.nom}` : `Patient #${f.patientId}`,
+          medecinId: Number(f.medecinId),
+          medecin: f.medecin ? `Dr. ${f.medecin.prenom} ${f.medecin.nom}` : `Médecin #${f.medecinId}`,
+          date: f.date,
+          actes: Array.isArray(f.actes) ? f.actes : [],
+          statut: (f.statut || 'BROUILLON') as 'TRANSMISE' | 'BROUILLON' | 'VALIDEE'
+        }));
+        this.feuilles.set(mapped);
+      },
+      error: (err) => this.messageErreur.set(err.error?.message || 'Erreur lors du chargement des feuilles')
+    });
+  }
 
   ajouterFeuille(): void {
-    if (this.nouvelleFeuille.patient && this.nouvelleFeuille.medecin && this.nouvelleFeuille.date) {
-      const feuille: FeuilleSoinsData = {
-        id: Date.now(),
-        patient: this.nouvelleFeuille.patient,
-        medecin: this.nouvelleFeuille.medecin,
-        date: this.nouvelleFeuille.date,
-        mutuelle: this.nouvelleFeuille.mutuelle,
+    this.messageErreur.set('');
+
+    if (this.nouvelleFeuille.patientId && this.nouvelleFeuille.medecinId && this.nouvelleFeuille.descriptionActe && this.nouvelleFeuille.montantActe > 0) {
+      this.chargement.set(true);
+
+      const data = {
+        patientId: Number(this.nouvelleFeuille.patientId),
+        medecinId: Number(this.nouvelleFeuille.medecinId),
         actes: [{
-          code: this.nouvelleFeuille.codeActe,
-          description: this.nouvelleFeuille.descriptionActe,
-          montant: this.nouvelleFeuille.montantActe
+          code: this.nouvelleFeuille.codeActe || 'ACT',
+          libelle: this.nouvelleFeuille.descriptionActe,
+          quantite: Number(this.nouvelleFeuille.quantiteActe || 1),
+          prixUnitaire: Number(this.nouvelleFeuille.montantActe),
         }],
-        statut: 'en attente'
+        observations: this.nouvelleFeuille.observations || null,
       };
-      this.feuilles.update(liste => [...liste, feuille]);
-      this.messageSucces.set(`✅ Feuille de soins créée pour ${feuille.patient} !`);
-      this.nouvelleFeuille = { patient: '', medecin: '', date: '', mutuelle: '', codeActe: '', descriptionActe: '', montantActe: 0 };
-      this.afficherFormulaire.set(false);
-      setTimeout(() => this.messageSucces.set(''), 3000);
+
+      this.secretaireService.creerFeuilleSoins(data).subscribe({
+        next: () => {
+          this.messageSucces.set('✅ Feuille de soins créée avec succès !');
+          this.nouvelleFeuille = {
+            patientId: 0,
+            medecinId: 0,
+            codeActe: '',
+            descriptionActe: '',
+            quantiteActe: 1,
+            montantActe: 0,
+            observations: ''
+          };
+          this.afficherFormulaire.set(false);
+          this.chargement.set(false);
+          this.chargerFeuilles();
+          setTimeout(() => this.messageSucces.set(''), 3000);
+        },
+        error: (err) => {
+          this.messageErreur.set(err.error?.message || 'Erreur lors de la création');
+          this.chargement.set(false);
+        }
+      });
+      return;
     }
+
+    this.messageErreur.set('Patient, médecin, acte et montant sont requis.');
   }
 
   totalActes(actes: ActeSoins[]): number {
-    return actes.reduce((sum, a) => sum + a.montant, 0);
+    return actes.reduce((sum, a) => sum + ((a.quantite || 1) * (a.prixUnitaire || 0)), 0);
   }
 
   transmettre(id: number): void {
-    this.feuilles.update(liste =>
-      liste.map(f => f.id === id ? { ...f, statut: 'transmise' as const } : f)
-    );
+    this.secretaireService.validerFeuilleSoins(id).subscribe({
+      next: () => this.chargerFeuilles(),
+      error: (err) => this.messageErreur.set(err.error?.message || 'Erreur lors de la validation')
+    });
   }
 
   exporterPDF(feuille: FeuilleSoinsData): void {

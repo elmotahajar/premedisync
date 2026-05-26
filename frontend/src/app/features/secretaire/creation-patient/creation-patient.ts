@@ -27,7 +27,7 @@ export class CreationPatient implements OnInit {
 
   nouveauPatient = {
     nom: '', prenom: '', dateNaissance: '',
-    telephone: '', email: '', adresse: '', numeroSecurite: ''
+    telephone: '', email: '', password: '', adresse: '', numeroSecurite: ''
   };
 
   afficherFormulaire = signal(false);
@@ -47,14 +47,15 @@ export class CreationPatient implements OnInit {
   }
 
   ajouterPatient(): void {
-    if (this.nouveauPatient.nom && this.nouveauPatient.prenom && this.nouveauPatient.telephone) {
+    this.messageErreur.set('');
+
+    if (this.nouveauPatient.nom && this.nouveauPatient.prenom && this.nouveauPatient.telephone && this.nouveauPatient.email && this.nouveauPatient.password) {
       this.chargement.set(true);
       const data = {
         nom: this.nouveauPatient.nom,
         prenom: this.nouveauPatient.prenom,
         email: this.nouveauPatient.email,
-        password: '12345678',
-        role: 'patient',
+        password: this.nouveauPatient.password,
         telephone: this.nouveauPatient.telephone,
         adresse: this.nouveauPatient.adresse,
         dateNaissance: this.nouveauPatient.dateNaissance,
@@ -64,7 +65,7 @@ export class CreationPatient implements OnInit {
       this.secretaireService.creerPatient(data).subscribe({
         next: () => {
           this.messageSucces.set(`✅ Patient ${this.nouveauPatient.prenom} ${this.nouveauPatient.nom} créé !`);
-          this.nouveauPatient = { nom: '', prenom: '', dateNaissance: '', telephone: '', email: '', adresse: '', numeroSecurite: '' };
+          this.nouveauPatient = { nom: '', prenom: '', dateNaissance: '', telephone: '', email: '', password: '', adresse: '', numeroSecurite: '' };
           this.afficherFormulaire.set(false);
           this.chargement.set(false);
           this.chargerPatients();
@@ -75,6 +76,9 @@ export class CreationPatient implements OnInit {
           this.chargement.set(false);
         }
       });
+      return;
     }
+
+    this.messageErreur.set('Nom, prénom, téléphone, email et mot de passe sont requis.');
   }
 }
